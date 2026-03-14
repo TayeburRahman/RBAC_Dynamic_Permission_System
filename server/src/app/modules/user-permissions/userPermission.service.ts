@@ -63,11 +63,11 @@ const setPermissionsDirectly = async (userId: string, permissions: string[]): Pr
 // Grant default permissions for new registrations
 const handleNewUserPermissions = async (userId: string, role: string): Promise<void> => {
   const defaults: Record<string, string[]> = {
-    [ENUM_USER_ROLE.SUPER_ADMIN]: ['view_dashboard', 'manage_users', 'manage_perms', 'view_audit_logs'], // Usually seeded but good to have
-    [ENUM_USER_ROLE.ADMIN]: ['view_dashboard', 'manage_users', 'view_reports', 'view_audit_logs', 'view_tickets', 'view_orders'],
+    [ENUM_USER_ROLE.SUPER_ADMIN]: ['view_dashboard', 'manage_users', 'manage_perms', 'view_audit_logs', 'view_orders', 'manage_orders'],
+    [ENUM_USER_ROLE.ADMIN]: ['view_dashboard', 'manage_users', 'view_reports', 'view_audit_logs', 'view_tickets', 'view_orders', 'manage_orders'],
     [ENUM_USER_ROLE.MANAGER]: ['view_dashboard', 'manage_users', 'view_reports', 'view_tickets', 'view_orders'],
-    [ENUM_USER_ROLE.AGENT]: ['view_dashboard', 'manage_leads', 'manage_tasks', 'view_tickets', 'view_orders'],
-    [ENUM_USER_ROLE.CUSTOMER]: ['view_dashboard', 'view_tickets', 'view_orders'],
+    [ENUM_USER_ROLE.AGENT]: ['view_dashboard', 'manage_leads', 'manage_tasks', 'view_tickets'],   // NO view_orders by default — Manager must grant
+    [ENUM_USER_ROLE.CUSTOMER]: ['view_dashboard', 'view_tickets'],  // Customers CANNOT see the orders management page
   };
 
   const permissions = defaults[role] || [];
