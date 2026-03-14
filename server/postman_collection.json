@@ -1,0 +1,765 @@
+{
+  "info": {
+    "name": "Ayah Almheiri Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Complete API collection for Ayah Almheiri mobile café ordering platform."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "shopOwnerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "branchId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth - Customer",
+      "item": [
+        {
+          "name": "Register Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"customer@example.com\",\n  \"phone_number\": \"+971501234567\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\",\n  \"termsAccepted\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/customer/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "customer", "register"]
+            },
+            "description": "Register a new customer account. Sends OTP to email."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify OTP (Customer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@example.com\",\n  \"activation_code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-otp"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "resend-otp"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth - Shop Owner",
+      "item": [
+        {
+          "name": "Register Shop Owner",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"shopowner@example.com\",\n  \"phone_number\": \"+971509876543\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\",\n  \"termsAccepted\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/shop-owner/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "shop-owner", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify OTP (Shop Owner)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"shopowner@example.com\",\n  \"activation_code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-otp"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth - Common",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@ayah.com\",\n  \"password\": \"superadmin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login for any role. Use Super Admin creds to test admin endpoints."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Forgot Password OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-forgot-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-forgot-otp"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Forgot Password Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-forgot-code",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "resend-forgot-code"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPassword\": \"newpassword123\",\n  \"confirmPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password?email=user@example.com",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"],
+              "query": [
+                { "key": "email", "value": "user@example.com" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"password123\",\n  \"newPassword\": \"newpassword123\",\n  \"confirmPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "change-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Shop Owner - Registration Steps",
+      "item": [
+        {
+          "name": "Screen 3 - Save Location",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": \"123 Sheikh Zayed Rd, Dubai\",\n  \"lat\": 25.2048,\n  \"lng\": 55.2708\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shop-owner/location",
+              "host": ["{{baseUrl}}"],
+              "path": ["shop-owner", "location"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Screen 4 - Save Business Info",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shop_name\": \"My Cafe\",\n  \"shop_license_number\": \"LIC-12345\",\n  \"contact_email\": \"cafe@example.com\",\n  \"contact_phone\": \"+971501112233\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shop-owner/business/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["shop-owner", "business", "info"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Screen 5 - Save Branches",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branches\": [\n    {\n      \"branch_name\": \"Main Branch\",\n      \"address\": \"123 Main St, Dubai\",\n      \"lat\": 25.2048,\n      \"lng\": 55.2708,\n      \"phone_number\": \"+971501112233\",\n      \"availability\": [\n        { \"day\": \"Sunday\", \"open\": \"7:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false },\n        { \"day\": \"Monday\", \"open\": \"7:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false },\n        { \"day\": \"Tuesday\", \"open\": \"7:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false },\n        { \"day\": \"Wednesday\", \"open\": \"7:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false },\n        { \"day\": \"Thursday\", \"open\": \"7:00 AM\", \"close\": \"12:00 AM\", \"isClosed\": false },\n        { \"day\": \"Friday\", \"open\": \"2:00 PM\", \"close\": \"12:00 AM\", \"isClosed\": false },\n        { \"day\": \"Saturday\", \"open\": \"8:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false }\n      ],\n      \"applyMenuForAll\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shop-owner/business/branches",
+              "host": ["{{baseUrl}}"],
+              "path": ["shop-owner", "business", "branches"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Screen 6 - Upload Documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "business_license", "type": "file", "src": "", "description": "PDF/JPG/PNG, max 5MB" },
+                { "key": "shop_logo", "type": "file", "src": "", "description": "PDF/JPG/PNG, max 5MB" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shop-owner/business/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["shop-owner", "business", "documents"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Shop Owner - Profile & Branches",
+      "item": [
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "Updated Name", "type": "text" },
+                { "key": "email", "value": "updated@example.com", "type": "text" },
+                { "key": "phone_number", "value": "+971501234567", "type": "text" },
+                { "key": "shop_name", "value": "My Updated Cafe", "type": "text" },
+                { "key": "shop_license_number", "value": "LIC-12345", "type": "text" },
+                { "key": "contact_email", "value": "cafe@example.com", "type": "text" },
+                { "key": "contact_phone", "value": "+971509999999", "type": "text" },
+                { "key": "profile_image", "type": "file", "src": "", "description": "Profile image (JPEG/PNG/JPG)" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shop-owner/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["shop-owner", "profile"]
+            },
+            "description": "Update shop owner profile. All fields optional. Supports profile_image file upload."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Branch",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branch_name\": \"Downtown Branch\",\n  \"address\": \"123 Main St, Dubai\",\n  \"lat\": 25.2048,\n  \"lng\": 55.2708,\n  \"phone_number\": \"+971501112233\",\n  \"availability\": [\n    { \"day\": \"Sunday\", \"open\": \"7:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false },\n    { \"day\": \"Monday\", \"open\": \"7:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false },\n    { \"day\": \"Tuesday\", \"open\": \"7:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false },\n    { \"day\": \"Wednesday\", \"open\": \"7:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false },\n    { \"day\": \"Thursday\", \"open\": \"7:00 AM\", \"close\": \"12:00 AM\", \"isClosed\": false },\n    { \"day\": \"Friday\", \"open\": \"2:00 PM\", \"close\": \"12:00 AM\", \"isClosed\": false },\n    { \"day\": \"Saturday\", \"open\": \"8:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false }\n  ],\n  \"applyMenuForAll\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shop-owner/branch",
+              "host": ["{{baseUrl}}"],
+              "path": ["shop-owner", "branch"]
+            },
+            "description": "Create a new branch. If availability not provided, UAE default hours are used."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Branch Data",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branch_name\": \"Updated Branch Name\",\n  \"address\": \"456 New St, Abu Dhabi\",\n  \"lat\": 24.4539,\n  \"lng\": 54.3773,\n  \"phone_number\": \"+971504445566\",\n  \"applyMenuForAll\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shop-owner/branch/{{branchId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["shop-owner", "branch", "{{branchId}}"]
+            },
+            "description": "Update branch details. All fields optional."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Branch Availability",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"availability\": [\n    { \"day\": \"Sunday\", \"open\": \"8:00 AM\", \"close\": \"10:00 PM\", \"isClosed\": false },\n    { \"day\": \"Monday\", \"open\": \"8:00 AM\", \"close\": \"10:00 PM\", \"isClosed\": false },\n    { \"day\": \"Tuesday\", \"open\": \"8:00 AM\", \"close\": \"10:00 PM\", \"isClosed\": false },\n    { \"day\": \"Wednesday\", \"open\": \"8:00 AM\", \"close\": \"10:00 PM\", \"isClosed\": false },\n    { \"day\": \"Thursday\", \"open\": \"8:00 AM\", \"close\": \"11:00 PM\", \"isClosed\": false },\n    { \"day\": \"Friday\", \"open\": \"2:00 PM\", \"close\": \"11:00 PM\", \"isClosed\": false },\n    { \"day\": \"Saturday\", \"open\": \"9:00 AM\", \"close\": \"10:00 PM\", \"isClosed\": false }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shop-owner/branch/{{branchId}}/availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["shop-owner", "branch", "{{branchId}}", "availability"]
+            },
+            "description": "Update weekly availability hours for a specific branch."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Branch",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop-owner/branch/{{branchId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["shop-owner", "branch", "{{branchId}}"]
+            },
+            "description": "Delete a branch. Only the owning shop owner can delete."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Customer Management",
+      "item": [
+        {
+          "name": "Get All Customers (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/customers?page=1&limit=10&sortBy=createdAt&sortOrder=desc&searchTerm=&status=",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "customers"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number" },
+                { "key": "limit", "value": "10", "description": "Items per page" },
+                { "key": "sortBy", "value": "createdAt", "description": "Sort field" },
+                { "key": "sortOrder", "value": "desc", "description": "asc or desc" },
+                { "key": "searchTerm", "value": "", "description": "Search by name, email, or phone" },
+                { "key": "status", "value": "", "description": "Filter: active or deactivate (leave empty for all)" }
+              ]
+            },
+            "description": "Get paginated list of all customers with search and filter. Requires ADMIN or SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Block/Unblock Customer",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{customerId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/customer/blocked",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "customer", "blocked"]
+            },
+            "description": "Toggle block/unblock for a customer. Requires ADMIN or SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Customer Details by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/customer/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "customer", "{{customerId}}"]
+            },
+            "description": "Get customer details by ID. Requires ADMIN or SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Customer Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/customer/overview",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "customer", "overview"]
+            },
+            "description": "Get customer overview stats: total customers, active customers, average orders. Requires ADMIN or SUPER_ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Shop Owner Management",
+      "item": [
+        {
+          "name": "Get Shop Owner Requests (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/shop_owner/request?page=1&limit=10&sortBy=createdAt&sortOrder=desc&searchTerm=&approval_status=pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "shop_owner", "request"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number" },
+                { "key": "limit", "value": "10", "description": "Items per page" },
+                { "key": "sortBy", "value": "createdAt", "description": "Sort field" },
+                { "key": "sortOrder", "value": "desc", "description": "asc or desc" },
+                { "key": "searchTerm", "value": "", "description": "Search by name, email, phone, shop name" },
+                { "key": "approval_status", "value": "pending", "description": "pending, approved, rejected" }
+              ]
+            },
+            "description": "Paginated list of shop owner requests. Requires ADMIN or SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Shop Owner",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{shopOwnerId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/shop_owner/accept",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "shop_owner", "accept"]
+            },
+            "description": "Approve a pending shop owner. Requires ADMIN or SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Block/Unblock Shop Owner",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{shopOwnerId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/shop_owner/blocked",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "shop_owner", "blocked"]
+            },
+            "description": "Toggle block/unblock. Requires ADMIN or SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Shop Owner Details",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Shop Owner Name\",\n  \"shop_name\": \"Updated Cafe Name\",\n  \"contact_email\": \"updated@cafe.com\",\n  \"contact_phone\": \"+971501112233\",\n  \"approval_status\": \"approved\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/shop_owner/details/{{shopOwnerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "shop_owner", "details", "{{shopOwnerId}}"]
+            },
+            "description": "Update shop owner details by ID. Requires ADMIN or SUPER_ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Admin Management (Super Admin)",
+      "item": [
+        {
+          "name": "Create Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Admin\",\n  \"email\": \"admin@example.com\",\n  \"phone_number\": \"+971502223344\",\n  \"password\": \"admin123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "create"]
+            },
+            "description": "Create a new Admin. Requires SUPER_ADMIN. Admin is active immediately (no OTP)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Admin Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Admin Name\",\n  \"email\": \"updatedadmin@example.com\",\n  \"phone_number\": \"+971505556677\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/profile/{{adminId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "profile", "{{adminId}}"]
+            },
+            "description": "Update Admin profile. Requires SUPER_ADMIN. Syncs changes to Auth record."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Admin",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/{{adminId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "{{adminId}}"]
+            },
+            "description": "Delete an Admin. Requires SUPER_ADMIN. Cannot delete a Super Admin."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

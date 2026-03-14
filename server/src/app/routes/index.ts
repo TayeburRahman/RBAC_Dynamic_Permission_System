@@ -1,0 +1,30 @@
+import express from 'express';
+import { AuthRoutes } from '../modules/auth/auth.routes';
+import { AdminRoutes } from '../modules/admin/admin.routes';
+import { PermissionRoutes } from '../modules/permissions/permission.routes';
+import { UserPermissionRoutes } from '../modules/user-permissions/userPermission.routes';
+import { UserRoutes } from '../modules/users/user.routes';
+import { LeadRoutes } from '../modules/leads/lead.routes';
+import { TaskRoutes } from '../modules/tasks/task.routes';
+import { AuditLogRoutes } from '../modules/audit-logs/auditLog.routes';
+import { TicketRoutes } from '../modules/tickets/ticket.routes';
+import { OrderRoutes } from '../modules/orders/order.routes';
+
+const router = express.Router();
+
+const moduleRoutes = [
+  { path: '/auth', route: AuthRoutes },
+  { path: '/admin', route: AdminRoutes },
+  { path: '/permissions', route: PermissionRoutes },
+  { path: '/user-permissions', route: UserPermissionRoutes },
+  { path: '/users', route: UserRoutes },
+  { path: '/leads', route: LeadRoutes },
+  { path: '/tasks', route: TaskRoutes },
+  { path: '/audit-logs', route: AuditLogRoutes },
+  { path: '/tickets', route: TicketRoutes },
+  { path: '/orders', route: OrderRoutes },
+];
+
+moduleRoutes.forEach(route => router.use(route.path, route.route));
+
+export default router;
