@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuthContext } from "@/providers/auth-provider";
 import RequirePermission from "@/components/RequirePermission";
 import DashboardHeader from "@/components/ui/custom/dashboard-header";
 import DashboardPageLayout from "@/components/ui/custom/dashboard-page-layout";
@@ -50,6 +51,26 @@ import {
 import { Loader2 } from "lucide-react";
 
 export default function UsersPage() {
+  const auth = useAuthContext();
+  const currentRole = auth?.user?.role as string | undefined;
+
+  // Only SUPER_ADMIN and MANAGER can access this page
+  const canAccess = currentRole === 'SUPER_ADMIN' || currentRole === 'MANAGER';
+
+  // Role options based on current user's role
+  const roleOptions =
+    currentRole === 'SUPER_ADMIN'
+      ? [
+          { value: 'SUPER_ADMIN', label: 'Super Admin' },
+          { value: 'MANAGER', label: 'Manager' },
+          { value: 'AGENT', label: 'Agent (Staff)' },
+          { value: 'CUSTOMER', label: 'Customer (Self-service)' },
+        ]
+      : [
+          { value: 'AGENT', label: 'Agent (Staff)' },
+          { value: 'CUSTOMER', label: 'Customer (Self-service)' },
+        ];
+
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -84,7 +105,7 @@ export default function UsersPage() {
   };
 
   const toggleSelectOne = (id: string) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
@@ -151,6 +172,14 @@ export default function UsersPage() {
     }
   };
 
+  if (!auth?.initializing && !canAccess) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">You do not have permission to access this page.</p>
+      </div>
+    );
+  }
+
   return (
     <RequirePermission permission="manage_users">
       <DashboardPageLayout>
@@ -189,59 +218,58 @@ export default function UsersPage() {
                   <div className="grid gap-4 py-6">
                     <div className="grid gap-2">
                       <Label htmlFor="name">Full Name</Label>
-                      <Input 
-                        id="name" 
-                        placeholder="John Doe" 
-                        required 
+                      <Input
+                        id="name"
+                        placeholder="John Doe"
+                        required
                         value={newUser.name}
-                        onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                        onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                       />
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="email">Email Address</Label>
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        placeholder="john@example.com" 
-                        required 
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="john@example.com"
+                        required
                         value={newUser.email}
-                        onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                        onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                       />
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="phone">Phone Number</Label>
-                      <Input 
-                        id="phone" 
-                        placeholder="017xxxxxxxx" 
-                        required 
+                      <Input
+                        id="phone"
+                        placeholder="017xxxxxxxx"
+                        required
                         value={newUser.phone_number}
-                        onChange={(e) => setNewUser({...newUser, phone_number: e.target.value})}
+                        onChange={(e) => setNewUser({ ...newUser, phone_number: e.target.value })}
                       />
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="password">Initial Password</Label>
-                      <Input 
-                        id="password" 
-                        type="password" 
-                        required 
+                      <Input
+                        id="password"
+                        type="password"
+                        required
                         value={newUser.password}
-                        onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                       />
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="role">System Role</Label>
-                      <Select 
-                        value={newUser.role} 
-                        onValueChange={(v) => setNewUser({...newUser, role: v})}
+                      <Select
+                        value={newUser.role}
+                        onValueChange={(v) => setNewUser({ ...newUser, role: v })}
                       >
                         <SelectTrigger id="role" className="w-full h-10">
                           <SelectValue placeholder="Select a role" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ADMIN">Administrator</SelectItem>
-                          <SelectItem value="MANAGER">Manager</SelectItem>
-                          <SelectItem value="AGENT">Agent (Staff)</SelectItem>
-                          <SelectItem value="CUSTOMER">Customer (Self-service)</SelectItem>
+                          {roleOptions.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -274,18 +302,18 @@ export default function UsersPage() {
               <span className="text-sm font-medium text-muted-foreground mr-2">
                 {selectedIds.length} selected
               </span>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="gap-2 text-emerald-600"
                 disabled={bulkLoading}
                 onClick={() => handleBulkStatus('unsuspend')}
               >
                 <UserCheck className="h-4 w-4" /> Unsuspend
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="gap-2 text-destructive"
                 disabled={bulkLoading}
                 onClick={() => handleBulkStatus('suspend')}
@@ -301,7 +329,7 @@ export default function UsersPage() {
             <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead className="w-[50px]">
-                  <Checkbox 
+                  <Checkbox
                     checked={users.length > 0 && selectedIds.length === users.length}
                     onCheckedChange={toggleSelectAll}
                   />
@@ -335,7 +363,7 @@ export default function UsersPage() {
                 users.map((user) => (
                   <TableRow key={user._id} className={cn("hover:bg-muted/30 transition-colors", selectedIds.includes(user._id) && "bg-muted/50")}>
                     <TableCell>
-                      <Checkbox 
+                      <Checkbox
                         checked={selectedIds.includes(user._id)}
                         onCheckedChange={() => toggleSelectOne(user._id)}
                       />
@@ -374,7 +402,7 @@ export default function UsersPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className="gap-2"
                             onClick={() => {
                               setSelectedUserId(user._id);
@@ -384,7 +412,7 @@ export default function UsersPage() {
                             <Shield className="h-4 w-4" /> Manage Permissions
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className={cn("gap-2", user.is_block ? "text-emerald-600" : "text-destructive")}
                             onClick={() => handleSuspend(user._id, user.is_block)}
                           >
