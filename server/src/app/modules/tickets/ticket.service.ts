@@ -7,6 +7,9 @@ import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
 import { broadcastToRoles, sendNotification } from '../../../utils/notification';
 import { ENUM_USER_ROLE } from '../../../enums/user';
+import { CacheService } from '../cache/cache.service';
+
+const CACHE_KEY_TICKET_STATS = 'ticket_stats';
 
 const createTicket = async (customerId: string, payload: Partial<ITicket>) => {
   const result = await Ticket.create({
@@ -26,6 +29,8 @@ const createTicket = async (customerId: string, payload: Partial<ITicket>) => {
     `New ticket: ${result.title}`,
     { ticketId: result._id }
   );
+  
+  await CacheService.del(CACHE_KEY_TICKET_STATS);
   
   return result;
 };
@@ -95,6 +100,8 @@ const updateTicketStatus = async (id: string, actorId: string, status: string) =
     { ticketId: id, status }
   );
 
+  await CacheService.del(CACHE_KEY_TICKET_STATS);
+
   return result;
 };
 
@@ -114,6 +121,8 @@ const assignTicket = async (id: string, actorId: string, assignedTo: string) => 
     'ASSIGN_TICKET',
     { target: 'Ticket', targetId: id, metadata: { assignedTo } }
   );
+
+  await CacheService.del(CACHE_KEY_TICKET_STATS);
 
   return result;
 };
@@ -155,13 +164,18 @@ const addMessage = async (id: string, senderId: string, text: string) => {
 };
 
 const getTicketStats = async () => {
+  const cachedData = await CacheService.get<any>(CACHE_KEY_TICKET_STATS);
+  if (cachedData) return cachedData;
+
   const [total, open, pending, closed] = await Promise.all([
     Ticket.countDocuments(),
     Ticket.countDocuments({ status: 'open' }),
     Ticket.countDocuments({ status: 'pending' }),
     Ticket.countDocuments({ status: 'closed' }),
   ]);
-  return { total, open, pending, closed };
+  const stats = { total, open, pending, closed };
+  await CacheService.set(CACHE_KEY_TICKET_STATS, stats, 300);
+  return stats;
 };
 
 const getCustomerTicketStats = async (customerId: string) => {

@@ -5,10 +5,11 @@ import sendResponse from '../../../shared/sendResponse';
 import ApiError from '../../../errors/ApiError';
 import { OrderService } from './order.service';
 import { IReqUser } from '../auth/auth.interface';
+import { ExportService } from '../export/export.service';
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
-  const { userId, _id } = req.user as any;
-  const customerId = userId || _id;
+  const actor = req.user as any;
+  const customerId = actor.authId || actor.userId || actor._id;
   const result = await OrderService.createOrder(customerId, req.body);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -30,8 +31,8 @@ const getAllOrders = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getMyOrders = catchAsync(async (req: Request, res: Response) => {
-  const { userId, _id } = req.user as any;
-  const customerId = userId || _id;
+  const actor = req.user as any;
+  const customerId = actor.authId || actor.userId || actor._id;
   const result = await OrderService.getMyOrders(customerId, req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -56,8 +57,8 @@ const getOrderById = catchAsync(async (req: Request, res: Response) => {
 const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
-  const { userId, _id } = req.user as any;
-  const actorId = userId || _id;
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
   const result = await OrderService.updateOrderStatus(id, actorId, status);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -78,8 +79,8 @@ const getOrderStats = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getMyOrderStats = catchAsync(async (req: Request, res: Response) => {
-  const { userId, _id } = req.user as any;
-  const customerId = userId || _id;
+  const actor = req.user as any;
+  const customerId = actor.authId || actor.userId || actor._id;
   const result = await OrderService.getCustomerOrderStats(customerId);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -91,8 +92,8 @@ const getMyOrderStats = catchAsync(async (req: Request, res: Response) => {
 
 const payOrder = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { userId, _id } = req.user as any;
-  const customerId = userId || _id;
+  const actor = req.user as any;
+  const customerId = actor.authId || actor.userId || actor._id;
 
   const order = await OrderService.getOrderById(id);
   if (!order) {
@@ -118,6 +119,28 @@ const payOrder = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const generateInvoice = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const actor = req.user as any;
+  const currentUserId = actor.authId || actor.userId || actor._id;
+
+  const order = await OrderService.getOrderById(id);
+  if (!order) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Order not found');
+  }
+
+  // Ensure customer owns the order or is admin
+  if (actor.role === 'CUSTOMER' && order.customerId.toString() !== currentUserId.toString()) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'You cannot access this invoice');
+  }
+
+  const pdf = await ExportService.generateInvoicePDF(order);
+  
+  res.header('Content-Type', 'application/pdf');
+  res.attachment(`invoice_${order._id}.pdf`);
+  res.send(pdf);
+});
+
 export const OrderController = {
   createOrder,
   getAllOrders,
@@ -127,4 +150,5 @@ export const OrderController = {
   getOrderStats,
   getMyOrderStats,
   payOrder,
+  generateInvoice,
 };

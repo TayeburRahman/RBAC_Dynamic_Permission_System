@@ -6,9 +6,10 @@ import { IReqUser } from '../auth/auth.interface';
 import { AuditLogService } from '../audit-logs/auditLog.service';
 
 const create = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as IReqUser;
-  const result = await LeadService.createLead({ ...req.body, createdBy: user.userId });
-  await AuditLogService.log(user.userId, 'CREATE_LEAD', { actorName: (user as any).name, target: 'Lead', targetId: result._id });
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
+  const result = await LeadService.createLead({ ...req.body, createdBy: actorId });
+  await AuditLogService.log(actorId, 'CREATE_LEAD', { actorName: actor.name, target: 'Lead', targetId: result._id });
   sendResponse(res, { statusCode: 201, success: true, message: 'Lead created', data: result });
 });
 
@@ -23,23 +24,26 @@ const getOne = catchAsync(async (req: Request, res: Response) => {
 });
 
 const update = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as IReqUser;
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
   const result = await LeadService.updateLead(req.params.id, req.body);
-  await AuditLogService.log(user.userId, 'UPDATE_LEAD', { target: 'Lead', targetId: req.params.id });
+  await AuditLogService.log(actorId, 'UPDATE_LEAD', { target: 'Lead', targetId: req.params.id });
   sendResponse(res, { statusCode: 200, success: true, message: 'Lead updated', data: result });
 });
 
 const remove = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as IReqUser;
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
   await LeadService.deleteLead(req.params.id);
-  await AuditLogService.log(user.userId, 'DELETE_LEAD', { target: 'Lead', targetId: req.params.id });
+  await AuditLogService.log(actorId, 'DELETE_LEAD', { target: 'Lead', targetId: req.params.id });
   sendResponse(res, { statusCode: 200, success: true, message: 'Lead deleted', data: null });
 });
 
 const convertToOrder = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as IReqUser;
-  const result = await LeadService.convertToOrder(req.params.id, user.userId);
-  await AuditLogService.log(user.userId, 'CONVERT_LEAD', { target: 'Lead', targetId: req.params.id, metadata: { orderId: result.order._id } });
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
+  const result = await LeadService.convertToOrder(req.params.id, actorId);
+  await AuditLogService.log(actorId, 'CONVERT_LEAD', { target: 'Lead', targetId: req.params.id, metadata: { orderId: result.order._id } });
   sendResponse(res, { statusCode: 200, success: true, message: 'Lead converted to order successfully', data: result });
 });
 

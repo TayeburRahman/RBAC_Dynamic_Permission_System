@@ -8,4 +8,11 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, { statusCode: 200, success: true, message: 'Audit logs fetched', data: result });
 });
 
-export const AuditLogController = { getAll };
+const getMyLogs = catchAsync(async (req: Request, res: Response) => {
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
+  const result = await AuditLogService.getLogs({ ...req.query, actor: actorId });
+  sendResponse(res, { statusCode: 200, success: true, message: 'My audit logs fetched', data: result });
+});
+
+export const AuditLogController = { getAll, getMyLogs };

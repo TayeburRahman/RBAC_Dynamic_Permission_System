@@ -9,6 +9,8 @@ import { TaskRoutes } from '../modules/tasks/task.routes';
 import { AuditLogRoutes } from '../modules/audit-logs/auditLog.routes';
 import { TicketRoutes } from '../modules/tickets/ticket.routes';
 import { OrderRoutes } from '../modules/orders/order.routes';
+import { ExportRoutes } from '../modules/export/export.routes';
+import { HealthRoutes } from '../modules/health/health.routes';
 
 const router = express.Router();
 
@@ -23,6 +25,8 @@ const moduleRoutes = [
   { path: '/audit-logs', route: AuditLogRoutes },
   { path: '/tickets', route: TicketRoutes },
   { path: '/orders', route: OrderRoutes },
+  { path: '/exports', route: ExportRoutes },
+  { path: '/health', route: HealthRoutes },
 ];
 
 moduleRoutes.forEach(route => router.use(route.path, route.route));

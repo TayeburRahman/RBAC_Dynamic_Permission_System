@@ -67,6 +67,11 @@ const AuthSchema: Schema<IAuth> = new Schema(
       type: Boolean,
       default: false,
     },
+    managedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'Auth',
+      default: null,
+    },
   },
   {
     timestamps: true,

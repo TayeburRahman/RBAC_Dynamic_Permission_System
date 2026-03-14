@@ -1,4 +1,4 @@
-import { Document, Model } from 'mongoose';
+import { Document, Model, Types } from 'mongoose';
 
 export type IEmailOptions = {
   email: string;
@@ -21,6 +21,7 @@ export type IAuth = Document & {
   isActive?: boolean;
   profile_image: string | null;
   termsAccepted: boolean;
+  managedBy?: Types.ObjectId | string;
 };
 
 export interface IAuthModel extends Model<IAuth> {

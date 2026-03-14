@@ -2,6 +2,8 @@ import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
 import UserPermission from './userPermission.model';
 import { PermissionService } from '../permissions/permission.service';
+import Auth from '../auth/auth.model';
+import { ENUM_USER_ROLE } from '../../../enums/user';
 
 // Get user's permissions
 const getUserPermissions = async (userId: string): Promise<string[]> => {
@@ -22,6 +24,15 @@ const updateUserPermissions = async (
   const invalid = permissions.filter(p => !allPermKeys.includes(p));
   if (invalid.length > 0) {
     throw new ApiError(httpStatus.BAD_REQUEST, `Invalid permission keys: ${invalid.join(', ')}`);
+  }
+
+  // Scoping Check for Managers
+  const actor = await Auth.findById(actorId).lean();
+  if (actor?.role === ENUM_USER_ROLE.MANAGER) {
+    const target = await Auth.findById(targetUserId).lean();
+    if (!target || target.managedBy?.toString() !== actorId) {
+      throw new ApiError(httpStatus.FORBIDDEN, "You can only manage permissions for your own team.");
+    }
   }
 
   const ceiling = permissions.filter(p => !actorPermissions.includes(p));
@@ -51,9 +62,17 @@ const setPermissionsDirectly = async (userId: string, permissions: string[]): Pr
 
 // Grant default permissions for new registrations
 const handleNewUserPermissions = async (userId: string, role: string): Promise<void> => {
-  if (role === 'CUSTOMER') {
-    const defaultCustomerPerms = ['view_dashboard', 'view_tickets', 'view_orders'];
-    await setPermissionsDirectly(userId, defaultCustomerPerms);
+  const defaults: Record<string, string[]> = {
+    [ENUM_USER_ROLE.SUPER_ADMIN]: ['view_dashboard', 'manage_users', 'manage_perms', 'view_audit_logs'], // Usually seeded but good to have
+    [ENUM_USER_ROLE.ADMIN]: ['view_dashboard', 'manage_users', 'view_reports', 'view_audit_logs', 'view_tickets', 'view_orders'],
+    [ENUM_USER_ROLE.MANAGER]: ['view_dashboard', 'manage_users', 'view_reports', 'view_tickets', 'view_orders'],
+    [ENUM_USER_ROLE.AGENT]: ['view_dashboard', 'manage_leads', 'manage_tasks', 'view_tickets', 'view_orders'],
+    [ENUM_USER_ROLE.CUSTOMER]: ['view_dashboard', 'view_tickets', 'view_orders'],
+  };
+
+  const permissions = defaults[role] || [];
+  if (permissions.length > 0) {
+    await setPermissionsDirectly(userId, permissions);
   }
 };
 

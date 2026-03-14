@@ -111,8 +111,9 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
 
 // ─── CHANGE PASSWORD ────────────────────────────────────────────────
 const changePassword = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as IReqUser;
-  await AuthService.changePassword(user, req.body);
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
+  await AuthService.changePassword({ authId: actorId }, req.body);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -122,7 +123,9 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
 
 // ─── GET MY PROFILE ─────────────────────────────────────────────────
 const getMyProfile = catchAsync(async (req: Request, res: Response) => {
-  const result = await AuthService.myProfile(req.user as IReqUser);
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
+  const result = await AuthService.myProfile({ userId: actorId, role: actor.role });
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -180,7 +183,8 @@ const logout = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateProfileImage = catchAsync(async (req: Request, res: Response) => {
-  const { authId } = req.user as IReqUser;
+  const actor = req.user as any;
+  const authId = actor.authId || actor.userId || actor._id;
   const profileImage = req.file?.path;
 
   if (!profileImage) {

@@ -7,8 +7,14 @@ const router = express.Router();
 
 router.get(
   '/',
-  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.MANAGER),
   AuditLogController.getAll
+);
+
+router.get(
+  '/my-logs',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMER),
+  AuditLogController.getMyLogs
 );
 
 export const AuditLogRoutes = router;

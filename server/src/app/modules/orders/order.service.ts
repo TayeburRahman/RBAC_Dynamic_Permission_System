@@ -6,6 +6,9 @@ import { AuditLogService } from '../audit-logs/auditLog.service';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
 import { sendNotification } from '../../../utils/notification';
+import { CacheService } from '../cache/cache.service';
+
+const CACHE_KEY_ORDER_STATS = 'order_stats';
 
 const createOrder = async (customerId: string, payload: Partial<IOrder>) => {
   const result = await Order.create({
@@ -18,6 +21,8 @@ const createOrder = async (customerId: string, payload: Partial<IOrder>) => {
     'CREATE_ORDER',
     { target: 'Order', targetId: result._id, metadata: { orderId: result.orderId, amount: result.amount } }
   );
+
+  await CacheService.del(CACHE_KEY_ORDER_STATS);
   
   return result;
 };
@@ -84,10 +89,15 @@ const updateOrderStatus = async (id: string, actorId: string, status: string) =>
     { orderId: result._id, status }
   );
 
+  await CacheService.del(CACHE_KEY_ORDER_STATS);
+
   return result;
 };
 
 const getOrderStats = async () => {
+  const cachedData = await CacheService.get<any>(CACHE_KEY_ORDER_STATS);
+  if (cachedData) return cachedData;
+
   const [total, pending, paid, delivered, cancelled] = await Promise.all([
     Order.countDocuments(),
     Order.countDocuments({ status: 'pending' }),
@@ -95,7 +105,9 @@ const getOrderStats = async () => {
     Order.countDocuments({ status: 'delivered' }),
     Order.countDocuments({ status: 'cancelled' }),
   ]);
-  return { total, pending, paid, delivered, cancelled };
+  const stats = { total, pending, paid, delivered, cancelled };
+  await CacheService.set(CACHE_KEY_ORDER_STATS, stats, 300);
+  return stats;
 };
 
 const getCustomerOrderStats = async (customerId: string) => {

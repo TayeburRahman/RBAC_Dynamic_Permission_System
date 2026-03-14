@@ -12,9 +12,10 @@ const getForUser = catchAsync(async (req: Request, res: Response) => {
 
 const updateForUser = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.params;
-  const actor = req.user as IReqUser;
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
   const { permissions } = req.body as { permissions: string[] };
-  const result = await UserPermissionService.updateUserPermissions(actor.userId.toString(), userId, permissions);
+  const result = await UserPermissionService.updateUserPermissions(actorId, userId, permissions);
   sendResponse(res, { statusCode: 200, success: true, message: 'Permissions updated', data: result });
 });
 

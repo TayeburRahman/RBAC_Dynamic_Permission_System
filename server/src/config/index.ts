@@ -37,4 +37,7 @@ export default {
     name: process.env.SUPER_ADMIN_NAME || 'Super Admin',
     phone_number: process.env.SUPER_ADMIN_PHONE || '+971500000000',
   },
+  redis: {
+    url: process.env.REDIS_URL || 'redis://localhost:6379',
+  },
 };

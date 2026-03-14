@@ -6,8 +6,8 @@ import { TicketService } from './ticket.service';
 import { IReqUser } from '../auth/auth.interface';
 
 const createTicket = catchAsync(async (req: Request, res: Response) => {
-  const { userId, _id } = req.user as any;
-  const customerId = userId || _id;
+  const actor = req.user as any;
+  const customerId = actor.authId || actor.userId || actor._id;
   const attachments = (req.files as any[])?.map((file: any) => file.path) || [];
   const result = await TicketService.createTicket(customerId, { ...req.body, attachments });
   sendResponse(res, {
@@ -30,8 +30,8 @@ const getAllTickets = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getMyTickets = catchAsync(async (req: Request, res: Response) => {
-  const { userId, _id } = req.user as any;
-  const customerId = userId || _id;
+  const actor = req.user as any;
+  const customerId = actor.authId || actor.userId || actor._id;
   const result = await TicketService.getMyTickets(customerId, req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -56,8 +56,8 @@ const getTicketById = catchAsync(async (req: Request, res: Response) => {
 const updateTicketStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
-  const { userId, _id } = req.user as any;
-  const actorId = userId || _id;
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
   const result = await TicketService.updateTicketStatus(id, actorId, status);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -70,8 +70,8 @@ const updateTicketStatus = catchAsync(async (req: Request, res: Response) => {
 const assignTicket = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { assignedTo } = req.body;
-  const { userId, _id } = req.user as any;
-  const actorId = userId || _id;
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
   const result = await TicketService.assignTicket(id, actorId, assignedTo);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -84,8 +84,8 @@ const assignTicket = catchAsync(async (req: Request, res: Response) => {
 const addMessage = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { text } = req.body;
-  const { userId, _id } = req.user as any;
-  const senderId = userId || _id;
+  const actor = req.user as any;
+  const senderId = actor.authId || actor.userId || actor._id;
   const result = await TicketService.addMessage(id, senderId, text);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -106,8 +106,8 @@ const getTicketStats = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getMyTicketStats = catchAsync(async (req: Request, res: Response) => {
-  const { userId, _id } = req.user as any;
-  const customerId = userId || _id;
+  const actor = req.user as any;
+  const customerId = actor.authId || actor.userId || actor._id;
   const result = await TicketService.getCustomerTicketStats(customerId);
   sendResponse(res, {
     statusCode: httpStatus.OK,

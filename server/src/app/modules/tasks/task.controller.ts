@@ -6,9 +6,10 @@ import { IReqUser } from '../auth/auth.interface';
 import { AuditLogService } from '../audit-logs/auditLog.service';
 
 const create = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as IReqUser;
-  const result = await TaskService.createTask({ ...req.body, createdBy: user.userId });
-  await AuditLogService.log(user.userId, 'CREATE_TASK', { target: 'Task', targetId: result._id });
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
+  const result = await TaskService.createTask({ ...req.body, createdBy: actorId });
+  await AuditLogService.log(actorId, 'CREATE_TASK', { target: 'Task', targetId: result._id });
   sendResponse(res, { statusCode: 201, success: true, message: 'Task created', data: result });
 });
 
@@ -23,16 +24,18 @@ const getOne = catchAsync(async (req: Request, res: Response) => {
 });
 
 const update = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as IReqUser;
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
   const result = await TaskService.updateTask(req.params.id, req.body);
-  await AuditLogService.log(user.userId, 'UPDATE_TASK', { target: 'Task', targetId: req.params.id });
+  await AuditLogService.log(actorId, 'UPDATE_TASK', { target: 'Task', targetId: req.params.id });
   sendResponse(res, { statusCode: 200, success: true, message: 'Task updated', data: result });
 });
 
 const remove = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as IReqUser;
+  const actor = req.user as any;
+  const actorId = actor.authId || actor.userId || actor._id;
   await TaskService.deleteTask(req.params.id);
-  await AuditLogService.log(user.userId, 'DELETE_TASK', { target: 'Task', targetId: req.params.id });
+  await AuditLogService.log(actorId, 'DELETE_TASK', { target: 'Task', targetId: req.params.id });
   sendResponse(res, { statusCode: 200, success: true, message: 'Task deleted', data: null });
 });
 

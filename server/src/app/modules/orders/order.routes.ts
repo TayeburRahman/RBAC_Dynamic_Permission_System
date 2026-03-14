@@ -29,6 +29,12 @@ router.post(
 );
 
 router.get(
+  '/:id/invoice',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMER),
+  OrderController.generateInvoice
+);
+
+router.get(
   '/stats',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.MANAGER, ENUM_USER_ROLE.AGENT),
   OrderController.getOrderStats
