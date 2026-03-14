@@ -2,6 +2,7 @@ import { Response, Request } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../../shared/catchasync';
 import sendResponse from '../../../shared/sendResponse';
+import ApiError from '../../../errors/ApiError';
 import { TicketService } from './ticket.service';
 import { IReqUser } from '../auth/auth.interface';
 
@@ -44,7 +45,19 @@ const getMyTickets = catchAsync(async (req: Request, res: Response) => {
 
 const getTicketById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
+  const actor = req.user as any;
+  const currentUserId = actor.authId || actor.userId || actor._id;
+
   const result = await TicketService.getTicketById(id);
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Ticket not found');
+  }
+
+  // Ownership check: If customer, must own the ticket.
+  if (actor.role === 'CUSTOMER' && result.customerId.toString() !== currentUserId.toString()) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'You cannot access this ticket');
+  }
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -86,6 +99,17 @@ const addMessage = catchAsync(async (req: Request, res: Response) => {
   const { text } = req.body;
   const actor = req.user as any;
   const senderId = actor.authId || actor.userId || actor._id;
+
+  const ticket = await TicketService.getTicketById(id);
+  if (!ticket) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Ticket not found');
+  }
+
+  // If customer, check ownership
+  if (actor.role === 'CUSTOMER' && ticket.customerId.toString() !== senderId.toString()) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'You can only message your own tickets');
+  }
+
   const result = await TicketService.addMessage(id, senderId, text);
   sendResponse(res, {
     statusCode: httpStatus.OK,

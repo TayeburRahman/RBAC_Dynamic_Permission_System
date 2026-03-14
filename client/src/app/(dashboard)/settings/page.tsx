@@ -86,7 +86,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <RequirePermission permission="manage_settings">
+    <RequirePermission permission="view_dashboard">
       <DashboardPageLayout>
         <DashboardHeader
           title="Account Settings"

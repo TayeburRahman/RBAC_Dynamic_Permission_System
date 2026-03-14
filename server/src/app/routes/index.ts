@@ -10,6 +10,7 @@ import { AuditLogRoutes } from '../modules/audit-logs/auditLog.routes';
 import { TicketRoutes } from '../modules/tickets/ticket.routes';
 import { OrderRoutes } from '../modules/orders/order.routes';
 import { ExportRoutes } from '../modules/export/export.routes';
+import { ReportRoutes } from '../modules/reports/report.routes';
 import { HealthRoutes } from '../modules/health/health.routes';
 
 const router = express.Router();
@@ -26,6 +27,7 @@ const moduleRoutes = [
   { path: '/tickets', route: TicketRoutes },
   { path: '/orders', route: OrderRoutes },
   { path: '/exports', route: ExportRoutes },
+  { path: '/reports', route: ReportRoutes },
   { path: '/health', route: HealthRoutes },
 ];
 

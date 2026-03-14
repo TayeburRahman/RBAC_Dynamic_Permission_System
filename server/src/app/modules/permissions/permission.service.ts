@@ -14,6 +14,14 @@ const PERMISSION_ATOMS = [
   { key: 'manage_tickets', label: 'Manage Tickets', description: 'Respond to and close tickets' },
   { key: 'view_orders', label: 'View Orders', description: 'View and track customer orders' },
   { key: 'manage_orders', label: 'Manage Orders', description: 'Process and manage orders' },
+  { key: 'create_tickets', label: 'Create Tickets', description: 'Open new support inquiries' },
+  { key: 'task.view', label: 'View All Tasks', description: 'View every task in the system' },
+  { key: 'task.view.own', label: 'View Own Tasks', description: 'View tasks assigned to you' },
+  { key: 'task.create', label: 'Create Tasks', description: 'Create new tasks' },
+  { key: 'task.update', label: 'Edit Tasks', description: 'Modify task details' },
+  { key: 'task.assign', label: 'Assign Tasks', description: 'Assign tasks to team members' },
+  { key: 'task.complete', label: 'Complete Tasks', description: 'Mark tasks as done' },
+  { key: 'task.delete', label: 'Delete Tasks', description: 'Permanently remove tasks' },
 ];
 
 const seedPermissions = async (): Promise<void> => {

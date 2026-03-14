@@ -54,8 +54,8 @@ export default function UsersPage() {
   const auth = useAuthContext();
   const currentRole = auth?.user?.role as string | undefined;
 
-  // Only SUPER_ADMIN and MANAGER can access this page
-  const canAccess = currentRole === 'SUPER_ADMIN' || currentRole === 'MANAGER';
+  // Only SUPER_ADMIN, ADMIN and MANAGER can access this page
+  const canAccess = currentRole === 'SUPER_ADMIN' || currentRole === 'ADMIN' || currentRole === 'MANAGER';
 
   // Role options based on current user's role
   const roleOptions =
@@ -125,7 +125,7 @@ export default function UsersPage() {
   };
 
   const handleExport = (format: 'csv' | 'pdf') => {
-    window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/exports/users?format=${format}`, '_blank');
+    window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/exports/users?format=${format}`, '_blank');
   };
 
   const fetchUsers = async () => {

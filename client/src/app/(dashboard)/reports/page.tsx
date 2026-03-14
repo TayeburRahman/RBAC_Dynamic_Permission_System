@@ -51,58 +51,30 @@ import {
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function ReportsPage() {
-  const [stats, setStats] = useState<any>(null);
-  const [taskStats, setTaskStats] = useState<any>(null);
+  const [reportData, setReportData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  // Mock data for charts - in a real app, these would come from the API
-  const userGrowthData = [
-    { name: 'Jan', users: 400 },
-    { name: 'Feb', users: 700 },
-    { name: 'Mar', users: 1200 },
-    { name: 'Apr', users: 1900 },
-    { name: 'May', users: 2400 },
-    { name: 'Jun', users: 3100 },
-  ];
-
-  const leadDistribution = [
-    { name: 'New', value: 400 },
-    { name: 'Contacted', value: 300 },
-    { name: 'Qualified', value: 300 },
-    { name: 'Lost', value: 200 },
-  ];
-
-  const taskVelocity = [
-    { day: 'Mon', completed: 12 },
-    { day: 'Tue', completed: 19 },
-    { day: 'Wed', completed: 15 },
-    { day: 'Thu', completed: 22 },
-    { day: 'Fri', completed: 30 },
-    { day: 'Sat', completed: 10 },
-    { day: 'Sun', completed: 8 },
-  ];
-
-  const handleExport = (format: 'csv' | 'pdf') => {
-    window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/exports/leads?format=${format}`, '_blank');
-  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [uRes, tRes] = await Promise.all([
-          api.get("/users/stats"),
-          api.get("/tasks/stats"),
-        ]);
-        setStats(uRes.data.data);
-        setTaskStats(tRes.data.data);
+        const response = await api.get("/reports/stats");
+        if (response.data.success) {
+            setReportData(response.data.data);
+        }
       } catch (err) {
-        // toast.error("Failed to load report data");
+        toast.error("Failed to load real-time analytics");
       } finally {
         setLoading(false);
       }
     };
     fetchData();
   }, []);
+
+  const stats = reportData?.summary;
+  const userGrowthData = reportData?.charts?.userGrowth || [];
+  const leadDistribution = reportData?.charts?.leadDistribution || [];
+  const taskVelocity = reportData?.charts?.taskVelocity || [];
+
 
   return (
     <RequirePermission permission="view_reports">
@@ -116,20 +88,6 @@ export default function ReportsPage() {
               <Calendar className="h-4 w-4" />
               Last 30 Days
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="gap-2 shadow-sm shrink-0 h-9">
-                  <Download className="h-4 w-4" />
-                  Export Data
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleExport('csv')}>Export CSV (Leads)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport('pdf')}>Export PDF (Leads)</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/exports/users?format=pdf`, '_blank')}>Export PDF (Users)</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </DashboardHeader>
 
@@ -141,9 +99,9 @@ export default function ReportsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{loading ? <Skeleton className="h-10 w-20" /> : stats?.total}</div>
-              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1 text-emerald-600 font-medium">
-                <TrendingUp className="h-3 w-3" /> +12% from last month
+              <div className="text-3xl font-bold">{loading ? <Skeleton className="h-10 w-20" /> : stats?.totalUsers || 0}</div>
+              <p className={`text-xs mt-1 flex items-center gap-1 font-medium ${(stats?.userGrowthPercent || 0) >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+                <TrendingUp className="h-3 w-3" /> {stats?.userGrowthPercent || 0}% from last month
               </p>
             </CardContent>
           </Card>
@@ -155,7 +113,7 @@ export default function ReportsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{loading ? <Skeleton className="h-10 w-20" /> : "24"}</div>
+              <div className="text-3xl font-bold">{loading ? <Skeleton className="h-10 w-20" /> : stats?.openTickets || 0}</div>
               <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1 text-emerald-600 font-medium">
                 <TrendingUp className="h-3 w-3" /> New inquiries today
               </p>
@@ -169,7 +127,7 @@ export default function ReportsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{loading ? <Skeleton className="h-10 w-20" /> : taskStats?.total}</div>
+              <div className="text-3xl font-bold">{loading ? <Skeleton className="h-10 w-20" /> : stats?.totalTasks || 0}</div>
               <p className="text-xs text-muted-foreground mt-1">Total items in pipeline</p>
             </CardContent>
           </Card>
@@ -177,12 +135,14 @@ export default function ReportsPage() {
           <Card className="shadow-sm border-none bg-gradient-to-br from-purple-500/10 to-transparent">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-semibold text-purple-600 uppercase tracking-wider flex items-center gap-1.5">
-                <ShoppingBag className="h-3.5 w-3.5" /> Active Orders
+                <ShoppingBag className="h-3.5 w-3.5" /> Total Revenue
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{loading ? <Skeleton className="h-10 w-20" /> : "12"}</div>
-              <p className="text-xs text-muted-foreground mt-1">Requiring fulfillment</p>
+              <div className="text-3xl font-bold">{loading ? <Skeleton className="h-10 w-20" /> : `$${(stats?.totalRevenue || 0).toLocaleString()}`}</div>
+              <p className={`text-xs mt-1 flex items-center gap-1 font-medium ${(stats?.revenueGrowthPercent || 0) >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+                <TrendingUp className="h-3 w-3" /> {stats?.revenueGrowthPercent || 0}% from start
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -227,7 +187,7 @@ export default function ReportsPage() {
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {leadDistribution.map((entry, index) => (
+                    {leadDistribution.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -235,7 +195,7 @@ export default function ReportsPage() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="flex flex-col gap-2 pr-8">
-                {leadDistribution.map((entry, index) => (
+                {leadDistribution.map((entry: any, index: number) => (
                   <div key={entry.name} className="flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full" style={{backgroundColor: COLORS[index]}}></div>
                     <span className="text-[10px] uppercase font-bold text-muted-foreground">{entry.name}</span>

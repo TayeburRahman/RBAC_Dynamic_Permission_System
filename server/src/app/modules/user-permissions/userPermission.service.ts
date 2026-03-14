@@ -62,12 +62,28 @@ const setPermissionsDirectly = async (userId: string, permissions: string[]): Pr
 
 // Grant default permissions for new registrations
 const handleNewUserPermissions = async (userId: string, role: string): Promise<void> => {
+  const taskAtoms = ['task.view', 'task.view.own', 'task.create', 'task.update', 'task.assign', 'task.complete', 'task.delete'];
+  
   const defaults: Record<string, string[]> = {
-    [ENUM_USER_ROLE.SUPER_ADMIN]: ['view_dashboard', 'manage_users', 'manage_perms', 'view_audit_logs', 'view_orders', 'manage_orders'],
-    [ENUM_USER_ROLE.ADMIN]: ['view_dashboard', 'manage_users', 'view_reports', 'view_audit_logs', 'view_tickets', 'view_orders', 'manage_orders'],
-    [ENUM_USER_ROLE.MANAGER]: ['view_dashboard', 'manage_users', 'view_reports', 'view_tickets', 'view_orders'],
-    [ENUM_USER_ROLE.AGENT]: ['view_dashboard', 'manage_leads', 'manage_tasks', 'view_tickets'],   // NO view_orders by default — Manager must grant
-    [ENUM_USER_ROLE.CUSTOMER]: ['view_dashboard', 'view_tickets'],  // Customers CANNOT see the orders management page
+    [ENUM_USER_ROLE.SUPER_ADMIN]: [
+      ...taskAtoms,
+      'view_dashboard', 'manage_users', 'manage_perms', 'view_reports', 'view_audit_logs', 'view_orders', 'manage_orders', 'view_tickets', 'manage_tickets', 'create_tickets'
+    ],
+    [ENUM_USER_ROLE.ADMIN]: [
+      'task.view', 'task.create', 'task.assign', 'task.update', 'task.delete',
+      'view_dashboard', 'manage_users', 'view_reports', 'view_audit_logs', 'view_tickets', 'manage_tickets', 'view_orders', 'manage_orders', 'create_tickets'
+    ],
+    [ENUM_USER_ROLE.MANAGER]: [
+      'task.view', 'task.create', 'task.assign', 'task.update',
+      'view_dashboard', 'manage_users', 'view_reports', 'view_tickets', 'manage_tickets', 'view_orders', 'create_tickets'
+    ],
+    [ENUM_USER_ROLE.AGENT]: [
+      'task.view.own', 'task.update', 'task.complete',
+      'view_dashboard', 'manage_leads'
+    ],
+    [ENUM_USER_ROLE.CUSTOMER]: [
+      'view_dashboard', 'view_tickets', 'create_tickets', 'view_orders'
+    ],
   };
 
   const permissions = defaults[role] || [];

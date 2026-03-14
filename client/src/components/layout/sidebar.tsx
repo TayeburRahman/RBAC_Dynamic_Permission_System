@@ -29,11 +29,12 @@ interface NavItem {
   icon: LucideIcon;
   href: string;
   permission: string;
+  roles?: string[];
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { name: "Dashboard",       icon: LayoutGrid,    href: "/dashboard",        permission: "view_dashboard"    },
-  { name: "Client Portal",   icon: Shield,        href: "/customer-portal",  permission: "view_dashboard"    },
+  { name: "Dashboard",       icon: LayoutGrid,    href: "/dashboard",        permission: "view_dashboard",   roles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "AGENT"] },
+  { name: "Client Portal",   icon: Shield,        href: "/customer-portal",  permission: "view_dashboard",   roles: ["CUSTOMER"] },
   { name: "Users",           icon: Users,         href: "/users",            permission: "manage_users"      },
   { name: "Leads",        icon: Target,        href: "/leads",       permission: "manage_leads"      },
   { name: "Tasks",        icon: CheckSquare,   href: "/tasks",       permission: "manage_tasks"      },
@@ -41,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { name: "Audit Log",    icon: ClipboardList, href: "/audit-log",   permission: "view_audit_logs"   },
   { name: "Tickets",      icon: MessageSquare, href: "/tickets",     permission: "view_tickets"      },
   { name: "Orders",       icon: ShoppingBag,   href: "/orders",      permission: "view_orders"       },
-  { name: "Settings",     icon: Settings,      href: "/settings",    permission: "manage_settings"   },
+  { name: "Settings",     icon: Settings,      href: "/settings",    permission: "view_dashboard"   },
 ];
 
 const Sidebar = ({
@@ -63,7 +64,11 @@ const Sidebar = ({
     window.location.href = '/auth/login';
   };
 
-  const visibleItems = NAV_ITEMS.filter(item => auth?.hasPermission(item.permission));
+  const visibleItems = NAV_ITEMS.filter(item => {
+    const hasPerm = auth?.hasPermission(item.permission);
+    const roleMatch = !item.roles || (auth?.user?.role && item.roles.includes(auth.user.role));
+    return hasPerm && roleMatch;
+  });
 
   const getInitials = (name: string) =>
     name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';

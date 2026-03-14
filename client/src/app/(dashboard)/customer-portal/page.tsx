@@ -82,13 +82,15 @@ export default function CustomerPortalPage() {
               href="/tickets" 
               color="bg-blue-500/10 text-blue-600"
             />
-            <QuickAction 
-              title="Track Orders" 
-              desc="View your purchase history" 
-              icon={ShoppingBag} 
-              href="/orders" 
-              color="bg-emerald-500/10 text-emerald-600"
-            />
+            {auth?.hasPermission('view_orders') && (
+              <QuickAction 
+                title="Track Orders" 
+                desc="View your purchase history" 
+                icon={ShoppingBag} 
+                href="/orders" 
+                color="bg-emerald-500/10 text-emerald-600"
+              />
+            )}
             <QuickAction 
               title="Account Settings" 
               desc="Update your preferences" 

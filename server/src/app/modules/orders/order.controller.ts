@@ -45,7 +45,19 @@ const getMyOrders = catchAsync(async (req: Request, res: Response) => {
 
 const getOrderById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
+  const actor = req.user as any;
+  const currentUserId = actor.authId || actor.userId || actor._id;
+
   const result = await OrderService.getOrderById(id);
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Order not found');
+  }
+
+  // Ownership check: If customer, must own the order. Staff with view_orders can see it.
+  if (actor.role === 'CUSTOMER' && result.customerId.toString() !== currentUserId.toString()) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'You cannot access this order');
+  }
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

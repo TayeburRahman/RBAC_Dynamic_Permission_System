@@ -8,8 +8,9 @@ import { ENUM_USER_ROLE } from '../../enums/user';
  * Middleware to check if the authenticated user has a required permission.
  * SUPER_ADMIN always passes. ADMIN always passes (full access).
  * MANAGER and AGENT must have the specific permission key.
+ * Can accept a single key or an array of keys (OR logic: passes if user has ANY of them).
  */
-const requirePermission = (permissionKey: string) =>
+const requirePermission = (permissionKey: string | string[]) =>
   async (req: Request, _res: Response, next: NextFunction) => {
     try {
       const user = req.user as any;
@@ -25,10 +26,13 @@ const requirePermission = (permissionKey: string) =>
       const userId = user.authId || user.userId || user._id;
       const permissions = await UserPermissionService.getUserPermissions(userId);
 
-      if (!permissions.includes(permissionKey)) {
+      const keys = Array.isArray(permissionKey) ? permissionKey : [permissionKey];
+      const hasAny = keys.some(k => permissions.includes(k));
+
+      if (!hasAny) {
         throw new ApiError(
           httpStatus.FORBIDDEN,
-          `Access Denied: You need the '${permissionKey}' permission to perform this action.`
+          `Access Denied: You need one of the following permissions: ${keys.join(', ')}`
         );
       }
 

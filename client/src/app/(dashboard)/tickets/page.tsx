@@ -165,7 +165,7 @@ export default function TicketsPage() {
           title="Support Center"
           description={isCustomer ? "Instant help and support for your services." : "Monitor and resolve customer support tickets."}
         >
-          {isCustomer && (
+          {auth?.hasPermission('create_tickets') && (
             <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
               <DialogTrigger asChild>
                 <Button className="gap-2 bg-primary shadow-lg hover:shadow-primary/20 transition-all">
