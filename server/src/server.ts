@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import mongoose from 'mongoose';
 import { Server } from 'socket.io';
-import { app } from './app';
+import { app } from './application';
 import config from './config/index';
 import { errorLogger, logger } from './shared/logger';
 import socket from './socket/socket';
