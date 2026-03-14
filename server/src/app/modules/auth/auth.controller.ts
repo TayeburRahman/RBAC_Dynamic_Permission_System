@@ -136,8 +136,10 @@ const getMyProfile = catchAsync(async (req: Request, res: Response) => {
 
 // ─── REFRESH TOKEN ─────────────────────────────────────────────────
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
-  const refreshToken = req.cookies?.refreshToken;
+  console.log('Refresh token request received. Cookies:', req.cookies, 'Body:', req.body);
+  const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
   if (!refreshToken) {
+    console.log('No refresh token provided in cookies or body');
     throw new ApiError(httpStatus.UNAUTHORIZED, 'No refresh token provided');
   }
 

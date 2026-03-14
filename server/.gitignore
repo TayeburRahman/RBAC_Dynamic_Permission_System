@@ -5,3 +5,4 @@ logs/
 dist/
 entrypoint.sh
 yarn.lock
+INSTACTIONS.md
