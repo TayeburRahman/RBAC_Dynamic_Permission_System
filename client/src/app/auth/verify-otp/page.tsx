@@ -28,7 +28,7 @@ const schema = z.object({
   activation_code: z.string().length(6, { message: "OTP must be 6 digits." }),
 });
 
-export default function VerifyOTPPage() {
+function VerifyOTPContent() {
   const router = useRouter();
   const search = useSearchParams();
   const auth = useAuthContext();
@@ -207,5 +207,13 @@ export default function VerifyOTPPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function VerifyOTPPage() {
+  return (
+    <React.Suspense fallback={<div>Loading verify code page...</div>}>
+      <VerifyOTPContent />
+    </React.Suspense>
   );
 }
