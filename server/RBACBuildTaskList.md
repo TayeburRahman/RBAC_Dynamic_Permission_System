@@ -1,5 +1,5 @@
  
-## Core Features Short overview
+## Core Features Short overview...
 Project Overview
 RBAC System — Full Project Specification (Dynamic Permission Platform)
 Project Overview

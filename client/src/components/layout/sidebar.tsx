@@ -32,8 +32,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { name: "Dashboard",    icon: LayoutGrid,    href: "/dashboard",   permission: "view_dashboard"    },
-  { name: "Users",        icon: Users,         href: "/users",       permission: "manage_users"      },
+  { name: "Dashboard",       icon: LayoutGrid,    href: "/dashboard",        permission: "view_dashboard"    },
+  { name: "Client Portal",   icon: Shield,        href: "/customer-portal",  permission: "view_dashboard"    },
+  { name: "Users",           icon: Users,         href: "/users",            permission: "manage_users"      },
   { name: "Leads",        icon: Target,        href: "/leads",       permission: "manage_leads"      },
   { name: "Tasks",        icon: CheckSquare,   href: "/tasks",       permission: "manage_tasks"      },
   { name: "Reports",      icon: BarChart3,     href: "/reports",     permission: "view_reports"      },

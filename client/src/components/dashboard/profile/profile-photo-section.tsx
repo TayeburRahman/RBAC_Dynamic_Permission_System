@@ -1,12 +1,13 @@
-"use client";
-
 import { useState, useRef } from "react";
 import { Camera, X, User, Mail, Shield, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ErrorToast, SuccessToast } from "@/lib/utils";
+import { useAuthContext } from "@/providers/auth-provider";
 
 export function ProfilePhotoSection() {
+  const auth = useAuthContext();
+  const user = auth?.user;
   const [image, setImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,9 +41,9 @@ export function ProfilePhotoSection() {
           {/* Avatar Container */}
           <div className="relative group">
             <Avatar className="h-32 w-32 border-4 border-background shadow-xl transition-transform duration-300 group-hover:scale-[1.02]">
-              {image && <AvatarImage src={image} className="object-cover" />}
-              <AvatarFallback className="bg-primary/5 text-primary">
-                <User className="h-12 w-12" />
+              {(image || user?.image) && <AvatarImage src={image || user?.image} className="object-cover" />}
+              <AvatarFallback className="bg-primary/5 text-primary text-2xl font-bold">
+                {user?.name?.charAt(0) || <User className="h-12 w-12" />}
               </AvatarFallback>
             </Avatar>
 
@@ -69,21 +70,21 @@ export function ProfilePhotoSection() {
             <div className="space-y-1">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                 <h3 className="text-2xl font-semibold text-foreground">
-                  Ubaid Kazmi
+                  {user?.name || "User Name"}
                 </h3>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-semibold w-fit mx-auto sm:mx-0">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-semibold w-fit mx-auto sm:mx-0 capitalize">
                   <Shield className="h-3 w-3" />
-                  Verified Vendor
+                  {user?.role?.toLowerCase() || "Role"}
                 </div>
               </div>
               <div className="flex flex-col gap-x-6 gap-y-1.5 text-sm text-muted-foreground">
                 <div className="flex items-center justify-center sm:justify-start gap-2">
                   <Mail className="h-4 w-4" />
-                  ubaidkazmi@gmail.com
+                  {user?.email || "email@example.com"}
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-2">
                   <Calendar className="h-4 w-4" />
-                  Joined March 2024
+                  Joined {user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : "Recently"}
                 </div>
               </div>
             </div>
@@ -96,6 +97,7 @@ export function ProfilePhotoSection() {
               className="hidden"
             />
           </div>
+
         </div>
       </CardContent>
     </Card>

@@ -18,7 +18,20 @@ import {
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import { toast } from "sonner";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   BarChart, 
@@ -69,6 +82,10 @@ export default function ReportsPage() {
     { day: 'Sun', completed: 8 },
   ];
 
+  const handleExport = (format: 'csv' | 'pdf') => {
+    window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/exports/leads?format=${format}`, '_blank');
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -99,10 +116,20 @@ export default function ReportsPage() {
               <Calendar className="h-4 w-4" />
               Last 30 Days
             </Button>
-            <Button className="gap-2 shadow-sm shrink-0 h-9">
-              <Download className="h-4 w-4" />
-              Export PDF
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="gap-2 shadow-sm shrink-0 h-9">
+                  <Download className="h-4 w-4" />
+                  Export Data
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleExport('csv')}>Export CSV (Leads)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport('pdf')}>Export PDF (Leads)</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/exports/users?format=pdf`, '_blank')}>Export PDF (Users)</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </DashboardHeader>
 

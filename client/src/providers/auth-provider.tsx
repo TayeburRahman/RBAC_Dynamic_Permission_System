@@ -47,7 +47,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function applyAuthData(at: string | null, u: any, perms: string[]) {
+  function applyAuthData(at: string | null, rt: string | null, u: any, perms: string[]) {
+    if (rt && typeof window !== 'undefined') {
+      localStorage.setItem('refreshToken', rt);
+    }
     setAccessToken(at);
     setToken(at);
     setUser(u || null);
@@ -59,8 +62,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   async function login(email: string, password: string) {
     try {
       const res = await api.post('/auth/login', { email, password });
-      const { accessToken: at, user: u, permissions: perms } = res.data.data || {};
-      applyAuthData(at, u, perms);
+      const { accessToken: at, refreshToken: rt, user: u, permissions: perms } = res.data.data || {};
+      applyAuthData(at, rt, u, perms);
     } catch (err: any) {
       throw err;
     }
@@ -69,8 +72,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   async function verify(payload: any) {
     try {
       const res = await api.post('/auth/verify-otp', payload);
-      const { accessToken: at, user: u, permissions: perms } = res.data.data || {};
-      applyAuthData(at, u, perms);
+      const { accessToken: at, refreshToken: rt, user: u, permissions: perms } = res.data.data || {};
+      applyAuthData(at, rt, u, perms);
     } catch (err: any) {
       throw err;
     }
@@ -90,6 +93,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (e) {
       // ignore network errors
     }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('refreshToken');
+    }
     setAccessToken(null);
     setToken(null);
     setUser(null);
@@ -99,12 +105,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   async function refresh() {
     try {
-      const res = await api.post('/auth/refresh');
-      const { accessToken: at, user: u, permissions: perms } = res.data.data || {};
+      const storedRt = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+      const res = await api.post('/auth/refresh', { refreshToken: storedRt });
+      const { accessToken: at, refreshToken: rt, user: u, permissions: perms } = res.data.data || {};
       if (at) {
-        applyAuthData(at, u, perms);
+        applyAuthData(at, rt, u, perms);
       }
     } catch (err) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('refreshToken');
+      }
       setAccessToken(null);
       setToken(null);
       setUser(null);
