@@ -1,6 +1,6 @@
 ## 🔐 RBAC Dynamic Permission System
 
-A full-stack Role-Based Access Control system with dynamic, granular permissions. Built with **Next.js 16**, **Express**, **MongoDB**, **Redis**, and **Socket.IO**.
+A full-stack Role-Based Access Control system with dynamic, granular permissions. 
 
 ### 🌐 Live Demo: [http://204.197.173.139:3001](http://204.197.173.139:3001)
 
@@ -27,7 +27,7 @@ A full-stack Role-Based Access Control system with dynamic, granular permissions
 | Redux Toolkit | Redis (ioredis) |
 | React Hook Form + Zod | JWT + bcrypt |
 | Recharts | Socket.IO, Multer, Nodemailer |
-| Axios + Socket.IO Client | Winston Logger, Stripe, PDFKit |
+| Axios + Socket.IO Client | Winston Logger, PDFKit |
 
 ---
 

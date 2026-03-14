@@ -16,9 +16,45 @@ let accessToken: string | null = null;
 
 export function setAccessToken(token: string | null) {
   accessToken = token;
+  // Resolve any requests waiting for the initial token
+  if (token && authReadyResolve) {
+    authReadyResolve();
+    authReadyResolve = null;
+  }
 }
 
-api.interceptors.request.use((config) => {
+// Gate: requests wait until auth is initialized (first refresh completes or fails)
+let authReady: Promise<void> | null = null;
+let authReadyResolve: (() => void) | null = null;
+
+function createAuthGate() {
+  authReady = new Promise<void>((resolve) => {
+    authReadyResolve = resolve;
+  });
+}
+
+// Signal that auth initialization is done (even if no token was obtained)
+export function markAuthReady() {
+  if (authReadyResolve) {
+    authReadyResolve();
+    authReadyResolve = null;
+  }
+}
+
+// Create the gate on module load (client-side only)
+if (typeof window !== 'undefined') {
+  createAuthGate();
+}
+
+api.interceptors.request.use(async (config) => {
+  // Don't gate the refresh request itself (would deadlock)
+  const isRefresh = config.url?.includes('/auth/refresh');
+  const isPublic = config.url?.includes('/auth/login') || config.url?.includes('/auth/register');
+
+  if (!isRefresh && !isPublic && authReady) {
+    await authReady; // wait until first auth refresh settles
+  }
+
   if (accessToken && config && config.headers) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }

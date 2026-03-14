@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import api, { setAccessToken } from "@/lib/api";
+import api, { setAccessToken, markAuthReady } from "@/lib/api";
 import { useAppDispatch } from '@/store/store';
 import { setUser as setUserAction, setAccessToken as setAccessTokenAction, clearAuth } from '@/store/authSlice';
 
@@ -41,6 +41,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         await refresh();
       } catch (e) {
         // no-op
+      } finally {
+        markAuthReady(); // unblock queued API requests
       }
       setInitializing(false);
     })();

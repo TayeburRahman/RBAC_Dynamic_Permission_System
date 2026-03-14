@@ -17,7 +17,7 @@ const register = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// ─── VERIFY OTP (Screen 2) ──────────────────────────────────────────
+// ─── VERIFY OTP  ──────────────────────────────────────────
 const verifyOtp = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthService.verifyOtp({
     activation_code: req.body.activation_code,
@@ -138,7 +138,7 @@ const getMyProfile = catchAsync(async (req: Request, res: Response) => {
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
   console.log('Refresh token request received. Cookies:', req.cookies, 'Body:', req.body);
   const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
-  
+
   if (!refreshToken) {
     console.log('No refresh token provided in cookies or body');
     throw new ApiError(httpStatus.UNAUTHORIZED, 'No refresh token provided');
@@ -159,11 +159,11 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
       statusCode: 200,
       success: true,
       message: 'Token refreshed',
-      data: { 
-        accessToken: result.accessToken, 
+      data: {
+        accessToken: result.accessToken,
         refreshToken: result.refreshToken,
-        user: result.user, 
-        permissions: result.permissions 
+        user: result.user,
+        permissions: result.permissions
       },
     });
   } catch (error) {

@@ -32,6 +32,9 @@ export default function DashboardPage() {
   const isCustomer = auth?.user?.role?.toUpperCase() === 'CUSTOMER';
 
   useEffect(() => {
+    // Wait for auth to finish initializing (refresh token flow) before making API calls
+    if (auth?.initializing || !auth?.accessToken) return;
+
     const fetchStats = async () => {
       try {
         if (isCustomer) {
@@ -64,7 +67,7 @@ export default function DashboardPage() {
       }
     };
     fetchStats();
-  }, [isCustomer]);
+  }, [isCustomer, auth?.initializing, auth?.accessToken]);
 
   const StatCard = ({ title, value, icon: Icon, color, subText }: any) => (
     <Card className="overflow-hidden border-none shadow-sm transition-all hover:shadow-md group">
