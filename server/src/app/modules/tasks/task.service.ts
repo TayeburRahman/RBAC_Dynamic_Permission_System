@@ -19,6 +19,7 @@ const getTasks = async (query: {
   status?: string;
   priority?: string;
   search?: string;
+  assignedTo?: string;
 }) => {
   const page = query.page || 1;
   const limit = query.limit || 20;
@@ -27,6 +28,7 @@ const getTasks = async (query: {
   const filter: any = {};
   if (query.status) filter.status = query.status;
   if (query.priority) filter.priority = query.priority;
+  if (query.assignedTo) filter.assignedTo = query.assignedTo;
   if (query.search) {
     filter.$or = [{ title: { $regex: query.search, $options: 'i' } }];
   }
@@ -68,13 +70,14 @@ const deleteTask = async (id: string) => {
 };
 
 const getStats = async () => {
-  const [total, todo, inProgress, done] = await Promise.all([
+  const [total, todo, inProgress, review, done] = await Promise.all([
     Task.countDocuments(),
     Task.countDocuments({ status: 'todo' }),
     Task.countDocuments({ status: 'in-progress' }),
+    Task.countDocuments({ status: 'review' }),
     Task.countDocuments({ status: 'done' }),
   ]);
-  return { total, todo, inProgress, done };
+  return { total, todo, inProgress, review, done };
 };
 
 export const TaskService = { createTask, getTasks, getTaskById, updateTask, deleteTask, getStats };

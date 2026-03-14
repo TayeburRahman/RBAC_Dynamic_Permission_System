@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const createOrderSchema = z.object({
   body: z.object({
-    orderId: z.string({ required_error: 'Order ID is required' }),
+    orderId: z.string().optional(),
     amount: z.number({ required_error: 'Amount is required' }),
     items: z.array(z.object({
       name: z.string({ required_error: 'Item name is required' }),

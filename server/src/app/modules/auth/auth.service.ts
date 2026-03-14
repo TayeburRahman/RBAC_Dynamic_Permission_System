@@ -366,6 +366,20 @@ const updateProfileImage = async (userId: string, profileImage: string) => {
   return result;
 };
 
+const updateProfile = async (userId: string, payload: Partial<IAuth>) => {
+  const result = await Auth.findByIdAndUpdate(
+    userId,
+    { $set: payload },
+    { new: true, runValidators: true }
+  ).select("-password");
+
+  if (!result) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return result;
+};
+
 export const AuthService = {
   register,
   verifyOtp,
@@ -380,14 +394,23 @@ export const AuthService = {
   refreshToken,
   logout,
   updateProfileImage,
+  updateProfile,
 };
 
 // ─── Refresh token handling ─────────────────────────────────────────
 async function refreshToken(token: string) {
   try {
     const payload = jwtHelpers.verifyToken(token, config.jwt.refresh_secret as any) as any;
+    if (!payload) {
+      console.error('[REFRESH ERROR] Token verification returned null payload');
+      throw new ApiError(401, 'Invalid refresh token');
+    }
+
     const auth = await Auth.findById(payload.authId);
-    if (!auth) throw new ApiError(401, 'Invalid token');
+    if (!auth) {
+      console.error(`[REFRESH ERROR] User not found for authId: ${payload.authId}`);
+      throw new ApiError(401, 'Invalid token');
+    }
 
     const accessToken = jwtHelpers.createToken(
       { authId: (auth._id as any).toString(), role: auth.role, userId: (auth._id as any).toString() },
@@ -404,7 +427,8 @@ async function refreshToken(token: string) {
     const user = await Auth.findById(auth._id).select('-password');
     const permissions = await UserPermissionService.getUserPermissions((auth._id as any).toString());
     return { accessToken, refreshToken, user, permissions };
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[REFRESH ERROR] Exception during refresh:', error?.message || error);
     throw new ApiError(401, 'Invalid refresh token');
   }
 };

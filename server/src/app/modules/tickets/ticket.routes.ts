@@ -37,6 +37,7 @@ router.get(
     ENUM_USER_ROLE.AGENT,
     ENUM_USER_ROLE.CUSTOMER,
   ),
+  requirePermission('view_tickets'),
   TicketController.getMyTickets
 );
 
@@ -44,6 +45,7 @@ router.get(
 router.get(
   '/my-stats',
   auth(ENUM_USER_ROLE.CUSTOMER, ENUM_USER_ROLE.SUPER_ADMIN),
+  requirePermission('view_tickets'),
   TicketController.getMyTicketStats
 );
 
@@ -75,6 +77,7 @@ router.get(
     ENUM_USER_ROLE.AGENT,
     ENUM_USER_ROLE.CUSTOMER,
   ),
+  requirePermission('view_tickets'),
   TicketController.getTicketById
 );
 

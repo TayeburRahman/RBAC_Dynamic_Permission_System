@@ -48,7 +48,7 @@ router.patch(
 
 router.post(
   '/:id/convert',
-  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.MANAGER),
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.MANAGER, ENUM_USER_ROLE.AGENT),
   requirePermission('manage_leads'),
   LeadController.convertToOrder
 );

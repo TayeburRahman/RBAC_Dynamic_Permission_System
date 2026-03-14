@@ -11,9 +11,16 @@ const router = express.Router();
 // ─── Customer Routes ───────────────────────────────────────────────────────
 
 // Customer only - Create order
+// Create order - Allowed for any role with order.create permission
 router.post(
   '/',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMER),
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.MANAGER,
+    ENUM_USER_ROLE.CUSTOMER
+  ),
+  requirePermission('order.create'),
   validateRequest(OrderValidation.createOrderSchema),
   OrderController.createOrder
 );
@@ -21,7 +28,13 @@ router.post(
 // Get my orders (Customer)
 router.get(
   '/my-orders',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMER),
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.MANAGER,
+    ENUM_USER_ROLE.CUSTOMER
+  ),
+  requirePermission('order.view.own'),
   OrderController.getMyOrders
 );
 
@@ -39,24 +52,31 @@ router.get(
 
 router.get(
   '/my-stats',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMER),
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.MANAGER,
+    ENUM_USER_ROLE.CUSTOMER
+  ),
+  requirePermission('order.view.own'),
   OrderController.getMyOrderStats
 );
 
 // ─── Staff Routes (Admin / Manager / Agent with permission) ───────────────
 
 // Order stats — Admin always allowed; Manager & Agent need view_orders
+// Order stats — Admin always allowed; Manager & Agent need view_orders
 router.get(
   '/stats',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.MANAGER, ENUM_USER_ROLE.AGENT),
-  requirePermission('view_orders'),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.MANAGER),
+  requirePermission(['view_orders', 'view_reports']),
   OrderController.getOrderStats
 );
 
 // Get all orders — Admin always allowed; Manager & Agent need view_orders
 router.get(
   '/',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.MANAGER, ENUM_USER_ROLE.AGENT),
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.MANAGER),
   requirePermission('view_orders'),
   OrderController.getAllOrders
 );
@@ -68,7 +88,6 @@ router.get(
     ENUM_USER_ROLE.SUPER_ADMIN,
     ENUM_USER_ROLE.ADMIN,
     ENUM_USER_ROLE.MANAGER,
-    ENUM_USER_ROLE.AGENT,
     ENUM_USER_ROLE.CUSTOMER,
   ),
   OrderController.getOrderById

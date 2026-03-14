@@ -7,7 +7,7 @@ const TaskSchema = new Schema<ITask>(
     description: { type: String, default: '' },
     status: {
       type: String,
-      enum: ['todo', 'in-progress', 'done'],
+      enum: ['todo', 'in-progress', 'review', 'done'],
       default: 'todo',
     },
     priority: {

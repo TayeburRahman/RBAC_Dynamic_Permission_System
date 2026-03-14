@@ -8,6 +8,7 @@ import { errorLogger, logger } from './shared/logger';
 import socket from './socket/socket';
 import { seedSuperAdmin } from './seeds/superAdmin';
 import { PermissionService } from './app/modules/permissions/permission.service';
+import { UserPermissionService } from './app/modules/user-permissions/userPermission.service';
 
 process.on('uncaughtException', error => {
   errorLogger.error(error);
@@ -22,6 +23,8 @@ async function main() {
 
     await PermissionService.seedPermissions();
     await seedSuperAdmin();
+    // Sync existing users with default permissions for their roles
+    await UserPermissionService.syncAllDefaults();
 
     const port =
       typeof config.port === 'number' ? config.port : Number(config.port);

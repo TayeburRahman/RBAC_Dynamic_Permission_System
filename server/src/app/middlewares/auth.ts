@@ -15,7 +15,7 @@ const auth =
         if (!tokenWithBearer) {
           throw new ApiError(
             httpStatus.UNAUTHORIZED,
-            'You are not authorized for this role',
+            'Login required: Authorization header is missing',
           );
         }
 
@@ -34,7 +34,16 @@ const auth =
             throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
           }
 
-          if (roles.length && !roles.includes(verifyUser.role)) {
+          const userRoleUpper = verifyUser.role?.toUpperCase();
+          const requiredRolesUpper = roles.map(r => r.toUpperCase());
+
+          // Super Admin always bypasses role checks
+          if (userRoleUpper === 'SUPER_ADMIN') {
+            return next();
+          }
+
+          if (roles.length && !requiredRolesUpper.includes(userRoleUpper)) {
+            console.error(`[AUTH] Access Forbidden: Role '${verifyUser.role}' is not in [${roles.join(', ')}] for ${req.method} ${req.originalUrl}`);
             throw new ApiError(
               httpStatus.FORBIDDEN,
               'Access Forbidden: You do not have permission to perform this action',

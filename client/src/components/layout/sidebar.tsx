@@ -28,7 +28,7 @@ interface NavItem {
   name: string;
   icon: LucideIcon;
   href: string;
-  permission: string;
+  permission: string | string[];
   roles?: string[];
 }
 
@@ -37,11 +37,11 @@ const NAV_ITEMS: NavItem[] = [
   { name: "Client Portal",   icon: Shield,        href: "/customer-portal",  permission: "view_dashboard",   roles: ["CUSTOMER"] },
   { name: "Users",           icon: Users,         href: "/users",            permission: "manage_users"      },
   { name: "Leads",        icon: Target,        href: "/leads",       permission: "manage_leads"      },
-  { name: "Tasks",        icon: CheckSquare,   href: "/tasks",       permission: "manage_tasks"      },
+  { name: "Orders",       icon: ShoppingBag,   href: "/orders",      permission: ["view_orders", "order.view.own"], roles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "CUSTOMER"] },
+  { name: "Tasks",        icon: CheckSquare,   href: "/tasks",       permission: ["task.view", "task.view.own"] },
   { name: "Reports",      icon: BarChart3,     href: "/reports",     permission: "view_reports"      },
   { name: "Audit Log",    icon: ClipboardList, href: "/audit-log",   permission: "view_audit_logs"   },
   { name: "Tickets",      icon: MessageSquare, href: "/tickets",     permission: "view_tickets"      },
-  { name: "Orders",       icon: ShoppingBag,   href: "/orders",      permission: "view_orders"       },
   { name: "Settings",     icon: Settings,      href: "/settings",    permission: "view_dashboard"   },
 ];
 
@@ -66,7 +66,8 @@ const Sidebar = ({
 
   const visibleItems = NAV_ITEMS.filter(item => {
     const hasPerm = auth?.hasPermission(item.permission);
-    const roleMatch = !item.roles || (auth?.user?.role && item.roles.includes(auth.user.role));
+    const userRole = auth?.user?.role?.toUpperCase();
+    const roleMatch = !item.roles || (userRole && item.roles.includes(userRole));
     return hasPerm && roleMatch;
   });
 

@@ -96,6 +96,19 @@ router.patch(
   AuthController.updateProfileImage
 );
 
+router.patch(
+  "/update-profile",
+  auth(
+    ENUM_USER_ROLE.CUSTOMER,
+    ENUM_USER_ROLE.AGENT,
+    ENUM_USER_ROLE.MANAGER,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN
+  ),
+  validateRequest(AuthValidation.updateProfile),
+  AuthController.updateProfile
+);
+
 // Refresh access token using httpOnly refresh cookie
 router.post('/refresh', AuthController.refreshToken);
 

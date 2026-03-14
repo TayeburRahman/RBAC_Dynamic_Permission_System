@@ -9,8 +9,15 @@ import { ExportService } from '../export/export.service';
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const actor = req.user as any;
-  const customerId = actor.authId || actor.userId || actor._id;
-  const result = await OrderService.createOrder(customerId, req.body);
+  const actorId = actor.authId || actor.userId || actor._id;
+  
+  let targetCustomerId = actorId;
+  // Staff can create orders for others
+  if (actor.role !== 'CUSTOMER' && req.body.customerId) {
+    targetCustomerId = req.body.customerId;
+  }
+
+  const result = await OrderService.createOrder(targetCustomerId, req.body, actorId);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,

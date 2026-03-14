@@ -29,7 +29,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const auth = useAuthContext();
-  const isCustomer = auth?.user?.role === 'CUSTOMER';
+  const isCustomer = auth?.user?.role?.toUpperCase() === 'CUSTOMER';
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -142,7 +142,7 @@ export default function DashboardPage() {
                       Recent Tickets <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </Button>
-                  {auth?.hasPermission('view_orders') && (
+                  {auth?.hasPermission(['view_orders', 'order.view.own']) && (
                     <Button variant="outline" className="w-full justify-between group" asChild>
                       <Link href="/orders">
                         Order History <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

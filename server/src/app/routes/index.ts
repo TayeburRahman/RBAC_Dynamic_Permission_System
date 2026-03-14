@@ -31,6 +31,9 @@ const moduleRoutes = [
   { path: '/health', route: HealthRoutes },
 ];
 
-moduleRoutes.forEach(route => router.use(route.path, route.route));
+moduleRoutes.forEach(route => {
+  console.log(`[ROUTER] Mounting ${route.path}`);
+  router.use(route.path, route.route);
+});
 
 export default router;

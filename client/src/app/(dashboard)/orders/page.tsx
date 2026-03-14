@@ -39,6 +39,19 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 import CustomPagination from "@/components/ui/custom/custom-pagination";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Plus } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -46,14 +59,24 @@ export default function OrdersPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [creating, setCreating] = useState(false);
   
   const auth = useAuthContext();
-  const isCustomer = auth?.user?.role === 'CUSTOMER';
+  const isCustomer = auth?.user?.role?.toUpperCase() === 'CUSTOMER';
+  const canViewAll = auth?.hasPermission('view_orders') && !isCustomer;
+
+  const [newOrder, setNewOrder] = useState({
+    customerId: "",
+    items: [{ name: "", price: 0, quantity: 1 }],
+    amount: 0
+  });
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const endpoint = isCustomer ? "/orders/my-orders" : "/orders";
+      const endpoint = canViewAll ? "/orders" : "/orders/my-orders";
       const response = await api.get(endpoint, {
         params: {
           searchTerm: search,
@@ -75,9 +98,61 @@ export default function OrdersPage() {
     }
   }, [search, page, isCustomer]);
 
+  const fetchCustomers = async () => {
+    try {
+        const res = await api.get("/users?role=CUSTOMER&limit=100");
+        setCustomers(res.data.data.users);
+    } catch (err) {
+        console.error("Failed to fetch customers", err);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
-  }, [fetchOrders]);
+    if (!isCustomer && auth?.hasPermission('order.create')) {
+        fetchCustomers();
+    }
+  }, [fetchOrders, isCustomer]);
+
+  const handleAddItem = () => {
+    setNewOrder({
+        ...newOrder,
+        items: [...newOrder.items, { name: "", price: 0, quantity: 1 }]
+    });
+  };
+
+  const handleUpdateItem = (index: number, field: string, value: any) => {
+    const updatedItems = [...newOrder.items];
+    updatedItems[index] = { ...updatedItems[index], [field]: value };
+    
+    // Recalculate total amount
+    const total = updatedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    
+    setNewOrder({
+        ...newOrder,
+        items: updatedItems,
+        amount: total
+    });
+  };
+
+  const handleCreateOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isCustomer && !newOrder.customerId) return toast.error("Please select a customer");
+    if (newOrder.items.some(it => !it.name || it.price <= 0)) return toast.error("Please fill all item details correctly");
+
+    setCreating(true);
+    try {
+        await api.post("/orders", newOrder);
+        toast.success("Order created successfully");
+        setIsModalOpen(false);
+        setNewOrder({ customerId: "", items: [{ name: "", price: 0, quantity: 1 }], amount: 0 });
+        fetchOrders();
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to create order");
+    } finally {
+        setCreating(false);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -95,12 +170,100 @@ export default function OrdersPage() {
   };
 
   return (
-    <RequirePermission permission="view_orders">
+    <RequirePermission permission={["view_orders", "order.view.own"] as any}>
       <DashboardPageLayout>
-        <DashboardHeader
-          title="Orders & Transactions"
-          description={isCustomer ? "View your order history and tracking info." : "Manage customer orders and payment statuses."}
-        />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <DashboardHeader
+            title="Orders & Transactions"
+            description={isCustomer ? "View your order history and tracking info." : "Manage customer orders and payment statuses."}
+          />
+          {auth?.hasPermission('order.create') && (
+            <Button className="w-full md:w-auto gap-2" onClick={() => setIsModalOpen(true)}>
+                <Plus className="h-4 w-4" /> Create Order
+            </Button>
+          )}
+        </div>
+
+        {/* Create Order Modal */}
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create New Order</DialogTitle>
+              <DialogDescription>
+                {isCustomer ? "Place a new order for yourself." : "Create an order on behalf of a customer."}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleCreateOrder}>
+              <div className="grid gap-4 py-4">
+                {!isCustomer && (
+                  <div className="grid gap-2">
+                    <Label>Select Customer</Label>
+                    <Select value={newOrder.customerId} onValueChange={(val) => setNewOrder({...newOrder, customerId: val})}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select customer" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {customers.map(c => (
+                                <SelectItem key={c._id} value={c._id}>{c.name} ({c.email})</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <Label className="text-base font-semibold">Items</Label>
+                        <Button type="button" variant="outline" size="sm" onClick={handleAddItem}>Add Item</Button>
+                    </div>
+                    {newOrder.items.map((item, idx) => (
+                        <div key={idx} className="grid grid-cols-12 gap-2 border p-3 rounded-lg relative group">
+                            <div className="col-span-6 grid gap-1">
+                                <Label className="text-[10px] uppercase text-muted-foreground">Item Name</Label>
+                                <Input 
+                                    className="h-8"
+                                    placeholder="Product Name" 
+                                    value={item.name} 
+                                    onChange={(e) => handleUpdateItem(idx, 'name', e.target.value)}
+                                />
+                            </div>
+                            <div className="col-span-3 grid gap-1">
+                                <Label className="text-[10px] uppercase text-muted-foreground">Price</Label>
+                                <Input 
+                                    className="h-8"
+                                    type="number" 
+                                    placeholder="0.00" 
+                                    value={item.price} 
+                                    onChange={(e) => handleUpdateItem(idx, 'price', Number(e.target.value))}
+                                />
+                            </div>
+                            <div className="col-span-3 grid gap-1">
+                                <Label className="text-[10px] uppercase text-muted-foreground">Qty</Label>
+                                <Input 
+                                    className="h-8"
+                                    type="number" 
+                                    value={item.quantity} 
+                                    onChange={(e) => handleUpdateItem(idx, 'quantity', Number(e.target.value))}
+                                />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
+                    <span className="font-semibold text-lg text-muted-foreground">Total Amount</span>
+                    <span className="font-bold text-2xl text-primary">${newOrder.amount.toFixed(2)}</span>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" type="button" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                <Button type="submit" disabled={creating}>
+                    {creating ? "Processing..." : "Create Order"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">

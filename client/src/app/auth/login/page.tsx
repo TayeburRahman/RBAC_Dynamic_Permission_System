@@ -43,9 +43,9 @@ export default function LoginPage() {
   function onEmailSubmit(values: z.infer<typeof emailSchema>) {
     setIsLoading(true)
     auth?.login(values.email, values.password)
-      .then(() => {
+      .then((redirectPath) => {
         toast.success("Logged in successfully!")
-        router.push('/dashboard')
+        router.push(redirectPath || '/dashboard')
       })
       .catch((err: any) => {
         const serverData = err?.response?.data;

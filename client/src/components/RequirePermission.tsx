@@ -6,7 +6,7 @@ import { useAuthContext } from "@/providers/auth-provider";
 import { Loader2 } from "lucide-react";
 
 type Props = {
-  permission: string;
+  permission: string | string[];
   children: React.ReactNode;
 };
 
@@ -34,7 +34,7 @@ export default function RequirePermission({ permission, children }: Props) {
     );
   }
 
-  // If not permitted, don't render children (redirect is happening)
+  // If not permitted or not logged in, don't render children
   if (!auth.user || !auth.hasPermission(permission)) {
     return null;
   }

@@ -11,13 +11,13 @@ type AuthContextValue = {
   user: User | null;
   accessToken: string | null;
   permissions: string[];
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<string>;
   verify: (payload: any) => Promise<void>;
   register: (payload: any) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   refreshUser: () => Promise<void>;
-  hasPermission: (perm: string) => boolean;
+  hasPermission: (perm: string | string[]) => boolean;
   initializing: boolean;
 };
 
@@ -64,6 +64,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const res = await api.post('/auth/login', { email, password });
       const { accessToken: at, refreshToken: rt, user: u, permissions: perms } = res.data.data || {};
       applyAuthData(at, rt, u, perms);
+
+      // Dynamic redirect based on first available permission
+      const userRole = u?.role?.toUpperCase();
+      if (userRole === 'CUSTOMER') {
+        if (perms.includes('view_dashboard')) return '/dashboard';
+        if (perms.includes('view_tickets')) return '/tickets';
+        if (perms.includes('order.view.own')) return '/orders';
+      }
+      return '/dashboard';
     } catch (err: any) {
       throw err;
     }
@@ -123,9 +132,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-  function hasPermission(perm: string): boolean {
+  function hasPermission(perm: string | string[]): boolean {
     if (user?.role === 'SUPER_ADMIN') return true;
-    return (permissions || []).includes(perm);
+    const userPerms = permissions || [];
+    if (Array.isArray(perm)) {
+      return perm.some(p => userPerms.includes(p));
+    }
+    return userPerms.includes(perm);
   }
 
   const value: AuthContextValue = {

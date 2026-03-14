@@ -94,9 +94,17 @@ const changePasswordSchema = z.object({
   }),
 });
 
+const updateProfile = z.object({
+  body: z.object({
+    name: z.string().optional(),
+    phone_number: z.string().optional(),
+  }),
+});
+
 export const AuthValidation = {
   register,
   verifyOtp,
+  updateProfile,
   resendOtp,
   loginZodSchema,
   forgotPasswordSchema,

@@ -4,6 +4,7 @@ import UserPermission from './userPermission.model';
 import { PermissionService } from '../permissions/permission.service';
 import Auth from '../auth/auth.model';
 import { ENUM_USER_ROLE } from '../../../enums/user';
+import { logger } from '../../../shared/logger';
 
 // Get user's permissions
 const getUserPermissions = async (userId: string): Promise<string[]> => {
@@ -67,29 +68,44 @@ const handleNewUserPermissions = async (userId: string, role: string): Promise<v
   const defaults: Record<string, string[]> = {
     [ENUM_USER_ROLE.SUPER_ADMIN]: [
       ...taskAtoms,
-      'view_dashboard', 'manage_users', 'manage_perms', 'view_reports', 'view_audit_logs', 'view_orders', 'manage_orders', 'view_tickets', 'manage_tickets', 'create_tickets'
+      'order.create', 'order.view.own',
+      'view_dashboard', 'manage_users', 'manage_permissions', 'view_reports', 'view_audit_logs', 'view_orders', 'manage_orders', 'view_tickets', 'manage_tickets', 'create_tickets'
     ],
     [ENUM_USER_ROLE.ADMIN]: [
       'task.view', 'task.create', 'task.assign', 'task.update', 'task.delete',
-      'view_dashboard', 'manage_users', 'view_reports', 'view_audit_logs', 'view_tickets', 'manage_tickets', 'view_orders', 'manage_orders', 'create_tickets'
+      'order.create', 'order.view.own',
+      'view_dashboard', 'manage_users', 'manage_permissions', 'manage_tasks', 'view_reports', 'view_audit_logs', 'view_tickets', 'manage_tickets', 'view_orders', 'manage_orders', 'create_tickets'
     ],
     [ENUM_USER_ROLE.MANAGER]: [
       'task.view', 'task.create', 'task.assign', 'task.update',
-      'view_dashboard', 'manage_users', 'view_reports', 'view_tickets', 'manage_tickets', 'view_orders', 'create_tickets'
+      'order.create', 'order.view.own',
+      'view_dashboard', 'manage_users', 'manage_permissions', 'manage_tasks', 'manage_leads', 'view_reports', 'view_tickets', 'manage_tickets', 'view_orders', 'create_tickets'
     ],
     [ENUM_USER_ROLE.AGENT]: [
       'task.view.own', 'task.update', 'task.complete',
       'view_dashboard', 'manage_leads'
     ],
     [ENUM_USER_ROLE.CUSTOMER]: [
-      'view_dashboard', 'view_tickets', 'create_tickets', 'view_orders'
+      'order.create', 'order.view.own',
+      'view_dashboard', 'view_tickets', 'create_tickets'
     ],
   };
 
-  const permissions = defaults[role] || [];
+  const normalizedRole = role ? role.toUpperCase() : '';
+  const permissions = defaults[normalizedRole] || [];
   if (permissions.length > 0) {
     await setPermissionsDirectly(userId, permissions);
   }
+};
+
+// Sync all users of a specific role with their default permissions (one-time or periodic)
+const syncAllDefaults = async (): Promise<void> => {
+  const users = await Auth.find({}).lean();
+  logger.info(`Syncing permissions for ${users.length} users...`);
+  for (const user of users) {
+    await handleNewUserPermissions(user._id.toString(), user.role);
+  }
+  logger.info(`✅ Permissions synced for all users.`);
 };
 
 export const UserPermissionService = {
@@ -97,4 +113,5 @@ export const UserPermissionService = {
   updateUserPermissions,
   setPermissionsDirectly,
   handleNewUserPermissions,
+  syncAllDefaults,
 };

@@ -22,6 +22,8 @@ const PERMISSION_ATOMS = [
   { key: 'task.assign', label: 'Assign Tasks', description: 'Assign tasks to team members' },
   { key: 'task.complete', label: 'Complete Tasks', description: 'Mark tasks as done' },
   { key: 'task.delete', label: 'Delete Tasks', description: 'Permanently remove tasks' },
+  { key: 'order.create', label: 'Create Orders', description: 'Initiate new orders' },
+  { key: 'order.view.own', label: 'View Own Orders', description: 'View orders you have placed' },
 ];
 
 const seedPermissions = async (): Promise<void> => {

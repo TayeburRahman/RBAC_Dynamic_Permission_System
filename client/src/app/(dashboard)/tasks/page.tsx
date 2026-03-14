@@ -20,6 +20,26 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import CustomPagination from "@/components/ui/custom/custom-pagination";
+import { useAuthContext } from "@/providers/auth-provider";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -27,6 +47,19 @@ export default function TasksPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<any>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [assignableUsers, setAssignableUsers] = useState<any[]>([]);
+  const [processing, setProcessing] = useState(false);
+  const auth = useAuthContext();
+
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    priority: "medium",
+    status: "todo",
+    assignedTo: "",
+    dueDate: "",
+  });
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -41,14 +74,66 @@ export default function TasksPage() {
     }
   };
 
+  const fetchAssignableUsers = async () => {
+    try {
+      // Admins can assign tasks to both Managers and Agents
+      const res = await api.get("/users?limit=100");
+      const staff = res.data.data.users.filter((u: any) => u.role === 'AGENT' || u.role === 'MANAGER');
+      setAssignableUsers(staff);
+    } catch (err) {
+      console.error("Failed to fetch internal users", err);
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
+    if (auth?.hasPermission('task.create') || auth?.hasPermission('task.assign')) {
+        fetchAssignableUsers();
+    }
   }, [page, search]);
+
+  const handleCreateTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTask.title) return toast.error("Title is required");
+    
+    setProcessing(true);
+    try {
+      const payload = {
+        ...newTask,
+        assignedTo: (newTask.assignedTo === "" || newTask.assignedTo === "unassigned") ? null : newTask.assignedTo,
+        dueDate: newTask.dueDate ? new Date(newTask.dueDate) : null
+      };
+      
+      await api.post("/tasks", payload);
+      toast.success("Task created successfully");
+      setIsCreateModalOpen(false);
+      setNewTask({ title: "", description: "", priority: "medium", status: "todo", assignedTo: "", dueDate: "" });
+      fetchTasks();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to create task");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleUpdateStatus = async (taskId: string, newStatus: string) => {
+    setLoading(true);
+    try {
+      await api.patch(`/tasks/${taskId}`, { status: newStatus });
+      toast.success("Task status updated");
+      fetchTasks();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update status");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'done': return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
       case 'in-progress': return <Clock className="h-4 w-4 text-blue-500" />;
+      case 'review': return <AlertCircle className="h-4 w-4 text-orange-500" />;
       default: return <Circle className="h-4 w-4 text-muted-foreground" />;
     }
   };
@@ -63,18 +148,107 @@ export default function TasksPage() {
   };
 
   return (
-    <RequirePermission permission="manage_tasks">
+    <RequirePermission permission={["task.view", "task.view.own"] as any}>
       <DashboardPageLayout>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <DashboardHeader
             title="Tasks Management"
             description="Assign, track and manage team tasks and priorities."
           />
-          <Button className="w-full md:w-auto gap-2">
-            <Plus className="h-4 w-4" />
-            Create Task
-          </Button>
+          {auth?.hasPermission('task.create') && (
+            <Button className="w-full md:w-auto gap-2" onClick={() => setIsCreateModalOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Create Task
+            </Button>
+          )}
         </div>
+
+        {/* Create Task Modal */}
+        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Create New Task</DialogTitle>
+              <DialogDescription>
+                Fill in the details below to create a new task and assign it to a team member.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleCreateTask}>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="title">Task Title</Label>
+                  <Input 
+                    id="title" 
+                    placeholder="e.g. Update website hero section" 
+                    value={newTask.title}
+                    onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Description (Optional)</Label>
+                  <Textarea 
+                    id="description" 
+                    placeholder="Add more details about the task..." 
+                    value={newTask.description}
+                    onChange={(e) => setNewTask({...newTask, description: e.target.value})}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="priority">Priority</Label>
+                    <Select 
+                      value={newTask.priority} 
+                      onValueChange={(val) => setNewTask({...newTask, priority: val})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="dueDate">Due Date</Label>
+                    <Input 
+                      id="dueDate" 
+                      type="date"
+                      value={newTask.dueDate}
+                      onChange={(e) => setNewTask({...newTask, dueDate: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="assignedTo">Assign To</Label>
+                  <Select 
+                    value={newTask.assignedTo} 
+                    onValueChange={(val) => setNewTask({...newTask, assignedTo: val})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team member" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unassigned">Unassigned</SelectItem>
+                      {assignableUsers.map(user => (
+                        <SelectItem key={user._id} value={user._id}>
+                          {user.name} ({user.role.charAt(0) + user.role.slice(1).toLowerCase()})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" type="button" onClick={() => setIsCreateModalOpen(false)}>Cancel</Button>
+                <Button type="submit" disabled={processing}>
+                  {processing ? "Creating..." : "Create Task"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         <div className="flex items-center gap-3 mb-6">
           <div className="relative flex-1 max-w-md">
@@ -155,9 +329,29 @@ export default function TasksPage() {
                       ) : "-"}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleUpdateStatus(task._id, 'todo')}>
+                            <Circle className="h-3 w-3 mr-2 text-muted-foreground" /> Todo
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleUpdateStatus(task._id, 'in-progress')}>
+                            <Clock className="h-3 w-3 mr-2 text-blue-500" /> In Progress
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleUpdateStatus(task._id, 'review')}>
+                            <AlertCircle className="h-3 w-3 mr-2 text-orange-500" /> Under Review
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleUpdateStatus(task._id, 'done')}>
+                            <CheckCircle2 className="h-3 w-3 mr-2 text-emerald-500" /> Mark as Done
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))

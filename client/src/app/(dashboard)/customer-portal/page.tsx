@@ -82,7 +82,7 @@ export default function CustomerPortalPage() {
               href="/tickets" 
               color="bg-blue-500/10 text-blue-600"
             />
-            {auth?.hasPermission('view_orders') && (
+            {auth?.hasPermission(['view_orders', 'order.view.own']) && (
               <QuickAction 
                 title="Track Orders" 
                 desc="View your purchase history" 

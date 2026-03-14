@@ -138,31 +138,44 @@ const getMyProfile = catchAsync(async (req: Request, res: Response) => {
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
   console.log('Refresh token request received. Cookies:', req.cookies, 'Body:', req.body);
   const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
+  
   if (!refreshToken) {
     console.log('No refresh token provided in cookies or body');
     throw new ApiError(httpStatus.UNAUTHORIZED, 'No refresh token provided');
   }
 
-  const result = await AuthService.refreshToken(refreshToken);
+  try {
+    const result = await AuthService.refreshToken(refreshToken);
 
-  const cookieOptions = {
-    secure: config.env === 'production',
-    httpOnly: true,
-    sameSite: 'lax' as const,
-    path: '/',
-  };
-  res.cookie('refreshToken', result.refreshToken, cookieOptions);
+    const cookieOptions = {
+      secure: config.env === 'production',
+      httpOnly: true,
+      sameSite: 'lax' as const,
+      path: '/',
+    };
+    res.cookie('refreshToken', result.refreshToken, cookieOptions);
 
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Token refreshed',
-    data: { 
-      accessToken: result.accessToken, 
-      user: result.user, 
-      permissions: result.permissions 
-    },
-  });
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'Token refreshed',
+      data: { 
+        accessToken: result.accessToken, 
+        refreshToken: result.refreshToken,
+        user: result.user, 
+        permissions: result.permissions 
+      },
+    });
+  } catch (error) {
+    // Clear cookie if refresh fails to prevent stale loops
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: config.env === 'production',
+      sameSite: 'lax' as const,
+      path: '/',
+    });
+    throw error;
+  }
 });
 
 // ─── LOGOUT ────────────────────────────────────────────────────────
@@ -203,6 +216,18 @@ const updateProfileImage = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  const actor = req.user as any;
+  const authId = actor.authId || actor.userId || actor._id;
+  const result = await AuthService.updateProfile(authId, req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Profile updated successfully',
+    data: result,
+  });
+});
+
 export const AuthController = {
   register,
   verifyOtp,
@@ -217,4 +242,5 @@ export const AuthController = {
   refreshToken,
   logout,
   updateProfileImage,
+  updateProfile,
 };

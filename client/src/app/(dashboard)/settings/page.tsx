@@ -20,6 +20,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [name, setName] = useState(auth?.user?.name || "");
+  const [phoneNumber, setPhoneNumber] = useState(auth?.user?.phone_number || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Password state
@@ -30,9 +31,12 @@ export default function SettingsPage() {
   const handleUpdateProfile = async () => {
     setLoading(true);
     try {
-      // In this specific system, we don't have a dedicated "update name" endpoint yet, 
-      // but we can add one or reuse auth logic. For now, let's assume valid API.
-      // toast.success("Profile information updated");
+      await api.patch("/auth/update-profile", {
+        name,
+        phone_number: phoneNumber,
+      });
+      toast.success("Profile information updated");
+      if (auth?.refreshUser) await auth.refreshUser();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to update profile");
     } finally {
@@ -129,7 +133,7 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1-2 h-4 w-4 text-muted-foreground" />
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input 
                         id="name" 
                         value={name} 
@@ -141,17 +145,27 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1-2 h-4 w-4 text-muted-foreground" />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input id="email" defaultValue={auth?.user?.email} className="pl-10 h-11 opacity-60" disabled />
                     </div>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <div className="relative">
+                      <Input 
+                        id="phone" 
+                        value={phoneNumber} 
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        className="h-11" 
+                      />
+                    </div>
+                  </div>
                 </div>
-                {/* 
+                
                 <Button onClick={handleUpdateProfile} disabled={loading} className="w-fit gap-2 h-11 px-6">
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                   Save Changes
                 </Button> 
-                */}
               </div>
             </div>
           </Section>

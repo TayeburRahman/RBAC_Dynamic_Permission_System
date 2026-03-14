@@ -10,14 +10,21 @@ import { CacheService } from '../cache/cache.service';
 
 const CACHE_KEY_ORDER_STATS = 'order_stats';
 
-const createOrder = async (customerId: string, payload: Partial<IOrder>) => {
+const createOrder = async (customerId: string, payload: Partial<IOrder>, actorId?: string) => {
+  // Auto-generate orderId if not provided
+  if (!payload.orderId) {
+    const timestamp = new Date().getTime();
+    const random = Math.floor(Math.random() * 1000);
+    payload.orderId = `ORD-${timestamp}-${random}`;
+  }
+
   const result = await Order.create({
     ...payload,
     customerId: new Types.ObjectId(customerId),
   });
   
   await AuditLogService.log(
-    customerId,
+    actorId || customerId,
     'CREATE_ORDER',
     { target: 'Order', targetId: result._id, metadata: { orderId: result.orderId, amount: result.amount } }
   );
