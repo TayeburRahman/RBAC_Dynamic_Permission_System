@@ -1,4 +1,4 @@
-# 🔐 RBAC Dynamic Permission System
+## 🔐 RBAC Dynamic Permission System
 
 A full-stack Role-Based Access Control system with dynamic, granular permissions. Built with **Next.js 16**, **Express**, **MongoDB**, **Redis**, and **Socket.IO**.
 
@@ -16,21 +16,7 @@ A full-stack Role-Based Access Control system with dynamic, granular permissions
 > Super Admin has full access to all features. Manager has role-based limited access (configurable by Super Admin).
 
 ---
-
-## ✨ Features
-
-- **Authentication** — Register, Login, JWT Access + Refresh Tokens, Forgot/Reset Password, Email OTP
-- **Dynamic Permissions** — Granular permission atoms (`leads:view`, `orders:create`, `users:delete`, etc.)
-- **Per-User Overrides** — Customize individual user permissions beyond their role defaults
-- **User Management** — Create, edit, activate/deactivate users with role assignment
-- **Leads, Orders, Tasks, Tickets** — Full CRUD with filtering, search, and status tracking
-- **Reports & Export** — PDF and CSV export with filters
-- **Audit Logs** — Track all user actions
-- **Real-Time** — Socket.IO live notifications
-- **Redis Caching** — Fast permission lookups and session management
-
----
-
+ 
 ## 🛠 Tech Stack
 
 | Frontend | Backend |
