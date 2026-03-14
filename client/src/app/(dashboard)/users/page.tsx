@@ -61,15 +61,15 @@ export default function UsersPage() {
   const roleOptions =
     currentRole === 'SUPER_ADMIN'
       ? [
-          { value: 'SUPER_ADMIN', label: 'Super Admin' },
-          { value: 'MANAGER', label: 'Manager' },
-          { value: 'AGENT', label: 'Agent (Staff)' },
-          { value: 'CUSTOMER', label: 'Customer (Self-service)' },
-        ]
+        { value: 'SUPER_ADMIN', label: 'Super Admin' },
+        { value: 'MANAGER', label: 'Manager' },
+        { value: 'AGENT', label: 'Agent (Staff)' },
+        { value: 'CUSTOMER', label: 'Customer (Self-service)' },
+      ]
       : [
-          { value: 'AGENT', label: 'Agent (Staff)' },
-          { value: 'CUSTOMER', label: 'Customer (Self-service)' },
-        ];
+        { value: 'AGENT', label: 'Agent (Staff)' },
+        { value: 'CUSTOMER', label: 'Customer (Self-service)' },
+      ];
 
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,9 +124,6 @@ export default function UsersPage() {
     }
   };
 
-  const handleExport = (format: 'csv' | 'pdf') => {
-    window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/exports/users?format=${format}`, '_blank');
-  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -189,17 +186,7 @@ export default function UsersPage() {
             description="Manage system users, roles, and security permissions."
           />
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2 h-10">
-                  <Download className="h-4 w-4" /> Export
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleExport('csv')}>Export CSV</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport('pdf')}>Export PDF</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+
             <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
               <DialogTrigger asChild>
                 <Button className="flex-1 md:flex-none gap-2 h-10 shadow-sm bg-primary hover:bg-primary/90">
