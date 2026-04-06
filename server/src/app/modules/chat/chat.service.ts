@@ -3,31 +3,40 @@ import { Message, IMessage } from './message.model';
 import { Types } from 'mongoose';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
+import Auth from '../auth/auth.model';
+
+const POPULATE_PARTICIPANTS = {
+  path: 'participants',
+  select: 'name email role profile_image'
+};
+
+const POPULATE_LAST_MESSAGE = {
+  path: 'lastMessage',
+  populate: { path: 'sender', select: 'name' }
+};
 
 const createConversation = async (participants: Types.ObjectId[]) => {
-  // Check if conversation already exists between these EXACT participants
+  // Check if conversation already exists
   const existingConversation = await Conversation.findOne({
     participants: { $all: participants, $size: participants.length }
-  });
+  }).populate(POPULATE_PARTICIPANTS);
 
   if (existingConversation) return existingConversation;
 
+  // Create new conversation
   const newConversation = await Conversation.create({ participants });
-  return newConversation;
+  
+  // Explicitly fetch the newly created conversation with population
+  const populated = await Conversation.findById(newConversation._id).populate(POPULATE_PARTICIPANTS);
+  return populated;
 };
 
 const getConversations = async (userId: string) => {
   const result = await Conversation.find({
     participants: new Types.ObjectId(userId)
   })
-    .populate({
-      path: 'participants',
-      select: 'name email role profile_image'
-    })
-    .populate({
-      path: 'lastMessage',
-      populate: { path: 'sender', select: 'name' }
-    })
+    .populate(POPULATE_PARTICIPANTS)
+    .populate(POPULATE_LAST_MESSAGE)
     .sort({ updatedAt: -1 });
 
   return result;
@@ -56,12 +65,16 @@ const sendMessage = async (payload: Partial<IMessage> & { conversationId: string
     readBy: [new Types.ObjectId(sender as any)]
   });
 
+  const populatedMessage = await Message.findById(message._id)
+    .populate('sender', 'name email role profile_image')
+    .populate('recipient', 'name email role profile_image');
+
   // Update last message in conversation
   await Conversation.findByIdAndUpdate(conversationId, {
     lastMessage: message._id
   });
 
-  return message;
+  return populatedMessage;
 };
 
 const deleteMessage = async (userId: string, messageId: string) => {
@@ -84,10 +97,28 @@ const deleteMessage = async (userId: string, messageId: string) => {
   return updatedMessage;
 };
 
+const searchUsers = async (searchTerm: string, currentUserId: string) => {
+  const query = {
+    _id: { $ne: new Types.ObjectId(currentUserId) },
+    isActive: true,
+    $or: [
+      { name: { $regex: searchTerm, $options: 'i' } },
+      { email: { $regex: searchTerm, $options: 'i' } }
+    ]
+  };
+
+  const result = await Auth.find(query)
+    .select('_id name email role profile_image')
+    .limit(10);
+    
+  return result;
+};
+
 export const ChatService = {
   createConversation,
   getConversations,
   getMessages,
   sendMessage,
-  deleteMessage
+  deleteMessage,
+  searchUsers
 };

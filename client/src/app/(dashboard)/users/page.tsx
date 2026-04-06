@@ -6,7 +6,7 @@ import RequirePermission from "@/components/RequirePermission";
 import DashboardHeader from "@/components/ui/custom/dashboard-header";
 import DashboardPageLayout from "@/components/ui/custom/dashboard-page-layout";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Shield, Ban, UserCheck, MoreVertical, CheckSquare, Trash2, Download } from "lucide-react";
+import { Plus, Search, Shield, Ban, UserCheck, MoreVertical, CheckSquare, Trash2, Download, MessageSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import api from "@/lib/api";
@@ -162,10 +162,19 @@ export default function UsersPage() {
       setIsCreateModalOpen(false);
       setNewUser({ name: "", email: "", phone_number: "", password: "", role: "CUSTOMER" });
       fetchUsers();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to create user");
     } finally {
       setCreateLoading(false);
+    }
+  };
+
+  const handleStartChat = async (recipientId: string) => {
+    try {
+      const res = await api.post("/chat/conversation", { recipientId });
+      if (res.data.success) {
+        window.location.href = `/chat`;
+      }
+    } catch (err) {
+      toast.error("Failed to start conversation");
     }
   };
 
@@ -397,6 +406,12 @@ export default function UsersPage() {
                             }}
                           >
                             <Shield className="h-4 w-4" /> Manage Permissions
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="gap-2"
+                            onClick={() => handleStartChat(user._id)}
+                          >
+                            <MessageSquare className="h-4 w-4" /> Message User
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem

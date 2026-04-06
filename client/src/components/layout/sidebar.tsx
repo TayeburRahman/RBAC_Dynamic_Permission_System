@@ -42,6 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { name: "Reports",      icon: BarChart3,     href: "/reports",     permission: "view_reports"      },
   { name: "Audit Log",    icon: ClipboardList, href: "/audit-log",   permission: "view_audit_logs"   },
   { name: "Tickets",      icon: MessageSquare, href: "/tickets",     permission: "view_tickets"      },
+  { name: "Messenger",    icon: MessageSquare, href: "/chat",        permission: "view_dashboard"   },
   { name: "Settings",     icon: Settings,      href: "/settings",    permission: "view_dashboard"   },
 ];
 

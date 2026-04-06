@@ -9,11 +9,13 @@ import { Bell } from "lucide-react";
 interface SocketContextType {
   socket: Socket | null;
   connected: boolean;
+  onlineUsers: string[];
 }
 
 const SocketContext = createContext<SocketContextType>({
   socket: null,
   connected: false,
+  onlineUsers: [],
 });
 
 export const useSocket = () => useContext(SocketContext);
@@ -21,6 +23,7 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const auth = useAuthContext();
 
   useEffect(() => {
@@ -59,6 +62,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
+    newSocket.on("onlineUser", (users: string[]) => {
+      setOnlineUsers(users);
+    });
+
     setSocket(newSocket);
 
     return () => {
@@ -67,7 +74,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   }, [auth?.user?._id, auth?.user?.role]);
 
   return (
-    <SocketContext.Provider value={{ socket, connected }}>
+    <SocketContext.Provider value={{ socket, connected, onlineUsers }}>
       {children}
     </SocketContext.Provider>
   );

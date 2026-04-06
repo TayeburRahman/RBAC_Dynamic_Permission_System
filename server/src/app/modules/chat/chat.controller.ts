@@ -106,10 +106,26 @@ const deleteMessage = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const searchUsers = catchAsync(async (req: Request, res: Response) => {
+  const account = req.user as any;
+  const currentUserId = account.authId || account._id;
+  const { searchTerm } = req.query;
+
+  const result = await ChatService.searchUsers(searchTerm as string, currentUserId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Users searched successfully',
+    data: result
+  });
+});
+
 export const ChatController = {
   createConversation,
   getConversations,
   getMessages,
   sendMessageWithFiles,
-  deleteMessage
+  deleteMessage,
+  searchUsers
 };
