@@ -36,12 +36,15 @@ const updateUserPermissions = async (
     }
   }
 
-  const ceiling = permissions.filter(p => !actorPermissions.includes(p));
-  if (ceiling.length > 0) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      `You cannot grant permissions you do not have: ${ceiling.join(', ')}`
-    );
+  // Skip grant ceiling check for SUPER_ADMIN
+  if (actor?.role !== ENUM_USER_ROLE.SUPER_ADMIN) {
+    const ceiling = permissions.filter(p => !actorPermissions.includes(p));
+    if (ceiling.length > 0) {
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        `You cannot grant permissions you do not have: ${ceiling.join(', ')}`
+      );
+    }
   }
 
   const record = await UserPermission.findOneAndUpdate(
@@ -69,15 +72,17 @@ const handleNewUserPermissions = async (userId: string, role: string): Promise<v
     [ENUM_USER_ROLE.SUPER_ADMIN]: [
       ...taskAtoms,
       'order.create', 'order.view.own',
-      'view_dashboard', 'manage_users', 'manage_permissions', 'view_reports', 'view_audit_logs', 'view_orders', 'manage_orders', 'view_tickets', 'manage_tickets', 'create_tickets'
+      'view_dashboard', 'manage_users', 'manage_permissions', 'view_reports', 'view_audit_logs', 'view_orders', 'manage_orders', 'view_tickets', 'manage_tickets', 'create_tickets',
+      'manage_settings', 'manage_leads', 'manage_tasks'
     ],
     [ENUM_USER_ROLE.ADMIN]: [
-      'task.view', 'task.create', 'task.assign', 'task.update', 'task.delete',
+      ...taskAtoms,
       'order.create', 'order.view.own',
-      'view_dashboard', 'manage_users', 'manage_permissions', 'manage_tasks', 'view_reports', 'view_audit_logs', 'view_tickets', 'manage_tickets', 'view_orders', 'manage_orders', 'create_tickets'
+      'view_dashboard', 'manage_users', 'manage_permissions', 'manage_tasks', 'view_reports', 'view_audit_logs', 'view_tickets', 'manage_tickets', 'view_orders', 'manage_orders', 'create_tickets',
+      'manage_settings', 'manage_leads'
     ],
     [ENUM_USER_ROLE.MANAGER]: [
-      'task.view', 'task.create', 'task.assign', 'task.update',
+      'task.view', 'task.create', 'task.assign', 'task.update', 'task.complete',
       'order.create', 'order.view.own',
       'view_dashboard', 'manage_users', 'manage_permissions', 'manage_tasks', 'manage_leads', 'view_reports', 'view_tickets', 'manage_tickets', 'view_orders', 'create_tickets'
     ],

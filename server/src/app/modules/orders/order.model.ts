@@ -11,7 +11,7 @@ const orderSchema = new Schema<IOrder, OrderModel>(
   {
     orderId: { type: String, required: true, unique: true },
     amount: { type: Number, required: true },
-    status: { type: String, enum: ['pending', 'paid', 'delivered', 'cancelled'], default: 'pending' },
+    status: { type: String, enum: ['pending', 'paid', 'shipped', 'delivered', 'cancelled'], default: 'pending' },
     customerId: { type: Schema.Types.ObjectId, ref: 'Auth', required: true },
     items: [orderItemSchema],
   },

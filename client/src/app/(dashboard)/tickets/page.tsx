@@ -145,6 +145,35 @@ export default function TicketsPage() {
     }
   };
 
+  const handleResolveTicket = async (ticketId: string) => {
+    try {
+      const response = await api.patch(`/tickets/${ticketId}/status`, { status: "closed" });
+      if (response.data.success) {
+        toast.success("Ticket resolved successfully");
+        fetchTickets();
+      }
+    } catch (error: any) {
+      console.error("Failed to resolve ticket:", error);
+      toast.error(error.response?.data?.message || "Failed to resolve ticket");
+    }
+  };
+
+  const handleClaimTicket = async (ticketId: string) => {
+    try {
+      const actor = auth?.user;
+      const actorId = actor?.authId || actor?._id;
+      
+      const response = await api.patch(`/tickets/${ticketId}/assign`, { assignedTo: actorId });
+      if (response.data.success) {
+        toast.success("Ticket claimed successfully");
+        fetchTickets();
+      }
+    } catch (error: any) {
+      console.error("Failed to claim ticket:", error);
+      toast.error(error.response?.data?.message || "Failed to claim ticket");
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "open":
@@ -399,11 +428,17 @@ export default function TicketsPage() {
                           {auth?.hasPermission('manage_tickets') && (
                             <>
                               <DropdownMenuSeparator className="my-1" />
-                              <DropdownMenuItem className="gap-3 h-10 px-3 cursor-pointer rounded-lg text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50">
+                              <DropdownMenuItem 
+                                className="gap-3 h-10 px-3 cursor-pointer rounded-lg text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50"
+                                onClick={() => handleResolveTicket(ticket._id)}
+                              >
                                 <CheckCircle2 className="h-4 w-4" />
                                 <span className="font-bold text-sm">Resolve Ticket</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="gap-3 h-10 px-3 cursor-pointer rounded-lg focus:bg-primary/5">
+                              <DropdownMenuItem 
+                                className="gap-3 h-10 px-3 cursor-pointer rounded-lg focus:bg-primary/5"
+                                onClick={() => handleClaimTicket(ticket._id)}
+                              >
                                 <UserIcon className="h-4 w-4" />
                                 <span className="font-bold text-sm">Claim Ownership</span>
                               </DropdownMenuItem>

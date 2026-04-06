@@ -1,0 +1,252 @@
+nohup: ignoring input
+
+> rbac_dynamic_permission_system@1.0.0 dev
+> ts-node-dev --transpile-only src/server.ts
+
+[INFO] 13:28:47 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.2)
+[ROUTER] Mounting /auth
+[ROUTER] Mounting /admin
+[ROUTER] Mounting /permissions
+[ROUTER] Mounting /user-permissions
+[ROUTER] Mounting /users
+[ROUTER] Mounting /leads
+[ROUTER] Mounting /tasks
+[ROUTER] Mounting /audit-logs
+[ROUTER] Mounting /tickets
+[ROUTER] Mounting /orders
+[ROUTER] Mounting /exports
+[ROUTER] Mounting /reports
+[ROUTER] Mounting /health
+Mon Apr 06 2026 13:28 48 [BACKEND] error: Redis connection error (logging only once): connect ECONNREFUSED 127.0.0.1:6379
+Mon Apr 06 2026 13:28 49 [BACKEND] info: DB Connected on Successfully
+Mon Apr 06 2026 13:28 51 [BACKEND] info: ✅ Permissions seeded (22 atoms)
+Mon Apr 06 2026 13:28 51 [BACKEND] info: ✅ Super Admin permissions synced (22 atoms)
+Mon Apr 06 2026 13:28 51 [BACKEND] info: Syncing permissions for 8 users...
+Mon Apr 06 2026 13:28 51 [BACKEND] info: ✅ Permissions synced for all users.
+Mon Apr 06 2026 13:28 51 [BACKEND] info: Example app listening on http://10.10.20.50:5000
+A user connected 69b5431c7aed61d15c4bdc07
+Mon Apr 06 2026 13:29 51 [BACKEND] error: Cache dele[INFO] 13:50:14 Restarting: /home/tayebur/project/RBAC_Dynamic_Permission_System/server/src/app/modules/auth/auth.service.ts has been modified
+[ROUTER] Mounting /auth
+[ROUTER] Mounting /admin
+[ROUTER] Mounting /permissions
+[ROUTER] Mounting /user-permissions
+[ROUTER] Mounting /users
+[ROUTER] Mounting /leads
+[ROUTER] Mounting /tasks
+[ROUTER] Mounting /audit-logs
+[ROUTER] Mounting /tickets
+[ROUTER] Mounting /orders
+[ROUTER] Mounting /exports
+[ROUTER] Mounting /reports
+[ROUTER] Mounting /health
+Mon Apr 06 2026 13:50 15 [BACKEND] error: Redis connection error (logging only once): connect ECONNREFUSED 127.0.0.1:6379
+Mon Apr 06 2026 13:50 16 [BACKEND] info: DB Connected on Successfully
+Mon Apr 06 2026 13:50 18 [BACKEND] info: ✅ Permissions seeded (22 atoms)
+Mon Apr 06 2026 13:50 18 [BACKEND] info: ✅ Super Admin permissions synced (22 atoms)
+Mon Apr 06 2026 13:50 18 [BACKEND] info: Syncing permissions for 8 users...
+Mon Apr 06 2026 13:50 19 [BACKEND] info: ✅ Permissions synced for all users.
+Mon Apr 06 2026 13:50 19 [BACKEND] error: listen EADDRINUSE: address already in use 10.10.20.50:5000
+[ERROR] 13:50:19 Error: listen EADDRINUSE: address already in use 10.10.20.50:5000
+[INFO] 13:52:19 Restarting: /home/tayebur/project/RBAC_Dynamic_Permission_System/server/src/application.ts has been modified
+[ROUTER] Mounting /auth
+[ROUTER] Mounting /admin
+[ROUTER] Mounting /permissions
+[ROUTER] Mounting /user-permissions
+[ROUTER] Mounting /users
+[ROUTER] Mounting /leads
+[ROUTER] Mounting /tasks
+[ROUTER] Mounting /audit-logs
+[ROUTER] Mounting /tickets
+[ROUTER] Mounting /orders
+[ROUTER] Mounting /exports
+[ROUTER] Mounting /reports
+[ROUTER] Mounting /health
+Mon Apr 06 2026 13:52 20 [BACKEND] error: Redis connection error (logging only once): connect ECONNREFUSED 127.0.0.1:6379
+Mon Apr 06 2026 13:52 21 [BACKEND] info: DB Connected on Successfully
+Mon Apr 06 2026 13:52 24 [BACKEND] info: ✅ Permissions seeded (22 atoms)
+Mon Apr 06 2026 13:52 24 [BACKEND] info: ✅ Super Admin permissions synced (22 atoms)
+Mon Apr 06 2026 13:52 24 [BACKEND] info: Syncing permissions for 8 users...
+Mon Apr 06 2026 13:52 25 [BACKEND] info: ✅ Permissions synced for all users.
+Mon Apr 06 2026 13:52 25 [BACKEND] error: listen EADDRINUSE: address already in use 10.10.20.50:5000
+[ERROR] 13:52:25 Error: listen EADDRINUSE: address already in use 10.10.20.50:5000
+s is false
+Mon Apr 06 2026 13:33 21 [BACKEND] error: Cache delete error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:33 26 [BACKEND] error: Cache delete error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 50 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 58 [BACKEND] error: Cache delete error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:37 58 [BACKEND] error: Cache delete error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:38 2 [BACKEND] error: Cache delete error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:38 2 [BACKEND] error: Cache delete error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:38 8 [BACKEND] error: Cache delete error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:38 11 [BACKEND] error: Cache delete error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjA2MDAsImV4cCI6MTgwNjk5NjYwMH0.Jb9NXDINvLvLrYVM6VI3iJZghbb8ZGWEurrIFtpvOH0'
+}
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjE2MjgsImV4cCI6MTgwNjk5NzYyOH0.p7xzpfm4J7BUy4o7ABFOcouOzUIZ_HGEpETUxTcR6IM'
+}
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjE2NTEsImV4cCI6MTgwNjk5NzY1MX0.Uy6Vsc3kNA_uX5FSTdtHym0eTfNS0kqsa6dhzCAlXJE'
+}
+Fetching report stats...
+Report stats fetched successfully
+Fetching report stats...
+Report stats fetched successfully
+Mon Apr 06 2026 13:48 18 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 18 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 18 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 18 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 18 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 18 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 19 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 19 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 19 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 19 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 19 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 19 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 41 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 41 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 41 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 41 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 41 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 41 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 41 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 41 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 41 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 42 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 42 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:48 42 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+A user disconnected 69b5431c7aed61d15c4bdc07
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjE2NTMsImV4cCI6MTgwNjk5NzY1M30.UYIgd93nimEfUWg5alRKMMug96QwjzCrcH7dfvEgrAc'
+}
+A user connected 69b5431c7aed61d15c4bdc07
+A user disconnected 69b5431c7aed61d15c4bdc07
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjE3MjMsImV4cCI6MTgwNjk5NzcyM30.wBlju188YQwpyi5AfygA9mt-I0fHsE5vdd0D7Fao9xI'
+}
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjE3MjMsImV4cCI6MTgwNjk5NzcyM30.wBlju188YQwpyi5AfygA9mt-I0fHsE5vdd0D7Fao9xI'
+}
+A user connected 69b5431c7aed61d15c4bdc07
+Fetching report stats...
+Report stats fetched successfully
+Fetching report stats...
+Report stats fetched successfully
+Mon Apr 06 2026 13:50 5 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 5 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 5 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 5 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 6 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 6 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 6 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 6 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 6 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 6 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 6 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:50 6 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+[INFO] 13:50:14 Restarting: /home/tayebur/project/RBAC_Dynamic_Permission_System/server/src/app/modules/auth/auth.service.ts has been modified
+Mon Apr 06 2026 13:50 14 [BACKEND] info: SIGTERM is received
+Fetching report stats...
+Report stats fetched successfully
+Fetching report stats...
+Report stats fetched successfully
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjE3MjUsImV4cCI6MTgwNjk5NzcyNX0.fhBn-qyzjTPwU7Dka60WTsoot_mOZiaQjPpAfOAKKNE'
+}
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjE5NzEsImV4cCI6MTgwNjk5Nzk3MX0.g4UY7oWc_XqeXgMrkm4eFKIAgxUQIBttN_NFHR9nZxM'
+}
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 35 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+[ROUTER] Mounting /auth
+[ROUTER] Mounting /admin
+[ROUTER] Mounting /permissions
+[ROUTER] Mounting /user-permissions
+[ROUTER] Mounting /users
+[ROUTER] Mounting /leads
+[ROUTER] Mounting /tasks
+[ROUTER] Mounting /audit-logs
+[ROUTER] Mounting /tickets
+[ROUTER] Mounting /orders
+[ROUTER] Mounting /exports
+[ROUTER] Mounting /reports
+[ROUTER] Mounting /health
+Mon Apr 06 2026 13:53 38 [BACKEND] error: Redis connection error (logging only once): connect ECONNREFUSED 127.0.0.1:6379
+Mon Apr 06 2026 13:53 40 [BACKEND] info: DB Connected on Successfully
+Mon Apr 06 2026 13:53 43 [BACKEND] info: ✅ Permissions seeded (22 atoms)
+Mon Apr 06 2026 13:53 43 [BACKEND] info: ✅ Super Admin permissions synced (22 atoms)
+Mon Apr 06 2026 13:53 43 [BACKEND] info: Syncing permissions for 8 users...
+Mon Apr 06 2026 13:53 44 [BACKEND] info: ✅ Permissions synced for all users.
+Mon Apr 06 2026 13:53 44 [BACKEND] info: Example app listening on http://10.10.20.50:5000
+A user connected 69b5431c7aed61d15c4bdc07
+Fetching report stats...
+Report stats fetched successfully
+Fetching report stats...
+Report stats fetched successfully
+Mon Apr 06 2026 13:53 51 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 51 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 51 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 51 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 51 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 51 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 51 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 51 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 51 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 52 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 52 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:53 52 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 15 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 15 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 15 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 15 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 15 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 15 [BACKEND] error: Cache get error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 15 [BACKEND] error: Cache get error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 15 [BACKEND] error: Cache set error [key: dashboard_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 15 [BACKEND] error: Cache set error [key: ticket_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 16 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 16 [BACKEND] error: Cache get error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Mon Apr 06 2026 13:54 16 [BACKEND] error: Cache set error [key: order_stats]: Stream isn't writeable and enableOfflineQueue options is false
+Fetching report stats...
+Report stats fetched successfully
+Fetching report stats...
+Report stats fetched successfully
+A user disconnected 69b5431c7aed61d15c4bdc07
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjE5ODYsImV4cCI6MTgwNjk5Nzk4Nn0.eANftINEMrv9DgH2_RD5sHu-8eaZn44SUmX8xsJ9_M8'
+}
+A user connected 69b5431c7aed61d15c4bdc07
+A user disconnected 69b5431c7aed61d15c4bdc07
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjIxMDcsImV4cCI6MTgwNjk5ODEwN30.T439N6umi7zIwpfJ8TyQULvDBMLluv3Hlp3d-f0whUA'
+}
+Refresh token request received. Cookies: [Object: null prototype] {} Body: {
+  refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoSWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJ1c2VySWQiOiI2OWI1NDMxYzdhZWQ2MWQxNWM0YmRjMDciLCJpYXQiOjE3NzU0NjIxMDcsImV4cCI6MTgwNjk5ODEwN30.T439N6umi7zIwpfJ8TyQULvDBMLluv3Hlp3d-f0whUA'
+}
+A user connected 69b5431c7aed61d15c4bdc07
+Fetching report stats...
+Report stats fetched successfully
+Fetching report stats...
+Report stats fetched successfully

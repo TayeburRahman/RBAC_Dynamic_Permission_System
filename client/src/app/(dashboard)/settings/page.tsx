@@ -107,7 +107,7 @@ export default function SettingsPage() {
             <div className="flex flex-col md:flex-row gap-8 items-start">
               <div className="relative group">
                 <Avatar className="h-24 w-24 border-4 border-background shadow-xl">
-                  <AvatarImage src={auth?.user?.profile_image ? `${process.env.NEXT_PUBLIC_BASE_API?.replace('/api/v1', '')}/${auth.user.profile_image}` : ""} />
+                  <AvatarImage src={auth?.user?.profile_image ? `${process.env.NEXT_PUBLIC_BASE_API}/${auth.user.profile_image}` : ""} />
                   <AvatarFallback className="text-2xl bg-primary/10 text-primary">
                     {auth?.user?.name?.substring(0, 2).toUpperCase()}
                   </AvatarFallback>

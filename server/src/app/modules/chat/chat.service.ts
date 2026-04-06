@@ -1,0 +1,93 @@
+import { Conversation, IConversation } from './conversation.model';
+import { Message, IMessage } from './message.model';
+import { Types } from 'mongoose';
+import ApiError from '../../../errors/ApiError';
+import httpStatus from 'http-status';
+
+const createConversation = async (participants: Types.ObjectId[]) => {
+  // Check if conversation already exists between these EXACT participants
+  const existingConversation = await Conversation.findOne({
+    participants: { $all: participants, $size: participants.length }
+  });
+
+  if (existingConversation) return existingConversation;
+
+  const newConversation = await Conversation.create({ participants });
+  return newConversation;
+};
+
+const getConversations = async (userId: string) => {
+  const result = await Conversation.find({
+    participants: new Types.ObjectId(userId)
+  })
+    .populate({
+      path: 'participants',
+      select: 'name email role profile_image'
+    })
+    .populate({
+      path: 'lastMessage',
+      populate: { path: 'sender', select: 'name' }
+    })
+    .sort({ updatedAt: -1 });
+
+  return result;
+};
+
+const getMessages = async (conversationId: string) => {
+  const result = await Message.find({
+    conversationId: new Types.ObjectId(conversationId)
+  })
+    .populate('sender', 'name email role profile_image')
+    .populate('recipient', 'name email role profile_image')
+    .sort({ createdAt: 1 });
+
+  return result;
+};
+
+const sendMessage = async (payload: Partial<IMessage> & { conversationId: string }) => {
+  const { conversationId, sender, recipient, content, attachments } = payload;
+
+  const message = await Message.create({
+    conversationId: new Types.ObjectId(conversationId),
+    sender: new Types.ObjectId(sender as any),
+    recipient: new Types.ObjectId(recipient as any),
+    content,
+    attachments,
+    readBy: [new Types.ObjectId(sender as any)]
+  });
+
+  // Update last message in conversation
+  await Conversation.findByIdAndUpdate(conversationId, {
+    lastMessage: message._id
+  });
+
+  return message;
+};
+
+const deleteMessage = async (userId: string, messageId: string) => {
+  const message = await Message.findById(messageId);
+  if (!message) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Message not found');
+  }
+
+  // Only the sender can delete their own message
+  if (message.sender.toString() !== userId) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'You can only delete your own messages');
+  }
+
+  const updatedMessage = await Message.findByIdAndUpdate(
+    messageId,
+    { isDeleted: true },
+    { new: true }
+  );
+
+  return updatedMessage;
+};
+
+export const ChatService = {
+  createConversation,
+  getConversations,
+  getMessages,
+  sendMessage,
+  deleteMessage
+};

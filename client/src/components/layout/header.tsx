@@ -68,7 +68,7 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
                   ) : (
                     <>
                       <Avatar className="h-9 w-9 border">
-                        <AvatarImage src={user?.image} alt={user?.name} />
+                        <AvatarImage src={user?.profile_image ? `${process.env.NEXT_PUBLIC_BASE_API}/${user.profile_image}` : ""} alt={user?.name} />
                         <AvatarFallback className="bg-primary/10 text-primary font-bold">
                           {user?.name?.charAt(0) || "U"}
                         </AvatarFallback>

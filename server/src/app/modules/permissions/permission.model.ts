@@ -6,6 +6,7 @@ const PermissionSchema = new Schema<IPermission>(
     key: { type: String, required: true, unique: true, trim: true },
     label: { type: String, required: true },
     description: { type: String, default: '' },
+    category: { type: String, default: 'General' },
   },
   { timestamps: true }
 );

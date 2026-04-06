@@ -4,32 +4,33 @@ import { useState, useEffect, useCallback } from "react";
 import RequirePermission from "@/components/RequirePermission";
 import DashboardHeader from "@/components/ui/custom/dashboard-header";
 import DashboardPageLayout from "@/components/ui/custom/dashboard-page-layout";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Search, 
-  ShoppingBag, 
-  MoreVertical, 
-  Package, 
-  Truck, 
-  CheckCircle2, 
+import {
+  Search,
+  ShoppingBag,
+  MoreVertical,
+  Package,
+  Truck,
+  CheckCircle2,
+  Clock,
   CreditCard,
   User as UserIcon,
   ArrowRight
@@ -62,7 +63,7 @@ export default function OrdersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customers, setCustomers] = useState<any[]>([]);
   const [creating, setCreating] = useState(false);
-  
+
   const auth = useAuthContext();
   const isCustomer = auth?.user?.role?.toUpperCase() === 'CUSTOMER';
   const canViewAll = auth?.hasPermission('view_orders') && !isCustomer;
@@ -85,7 +86,7 @@ export default function OrdersPage() {
           sort: "-createdAt"
         }
       });
-      
+
       if (response.data.success) {
         setOrders(response.data.data);
         setMeta(response.data.meta);
@@ -100,38 +101,38 @@ export default function OrdersPage() {
 
   const fetchCustomers = async () => {
     try {
-        const res = await api.get("/users?role=CUSTOMER&limit=100");
-        setCustomers(res.data.data.users);
+      const res = await api.get("/users?role=CUSTOMER&limit=100");
+      setCustomers(res.data.data.users);
     } catch (err) {
-        console.error("Failed to fetch customers", err);
+      console.error("Failed to fetch customers", err);
     }
   };
 
   useEffect(() => {
     fetchOrders();
     if (!isCustomer && auth?.hasPermission('order.create')) {
-        fetchCustomers();
+      fetchCustomers();
     }
   }, [fetchOrders, isCustomer]);
 
   const handleAddItem = () => {
     setNewOrder({
-        ...newOrder,
-        items: [...newOrder.items, { name: "", price: 0, quantity: 1 }]
+      ...newOrder,
+      items: [...newOrder.items, { name: "", price: 0, quantity: 1 }]
     });
   };
 
   const handleUpdateItem = (index: number, field: string, value: any) => {
     const updatedItems = [...newOrder.items];
     updatedItems[index] = { ...updatedItems[index], [field]: value };
-    
+
     // Recalculate total amount
     const total = updatedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    
+
     setNewOrder({
-        ...newOrder,
-        items: updatedItems,
-        amount: total
+      ...newOrder,
+      items: updatedItems,
+      amount: total
     });
   };
 
@@ -142,15 +143,28 @@ export default function OrdersPage() {
 
     setCreating(true);
     try {
-        await api.post("/orders", newOrder);
-        toast.success("Order created successfully");
-        setIsModalOpen(false);
-        setNewOrder({ customerId: "", items: [{ name: "", price: 0, quantity: 1 }], amount: 0 });
-        fetchOrders();
+      await api.post("/orders", newOrder);
+      toast.success("Order created successfully");
+      setIsModalOpen(false);
+      setNewOrder({ customerId: "", items: [{ name: "", price: 0, quantity: 1 }], amount: 0 });
+      fetchOrders();
     } catch (err: any) {
-        toast.error(err.response?.data?.message || "Failed to create order");
+      toast.error(err.response?.data?.message || "Failed to create order");
     } finally {
-        setCreating(false);
+      setCreating(false);
+    }
+  };
+
+  const handleUpdateStatus = async (orderId: string, newStatus: string) => {
+    try {
+      const response = await api.patch(`/orders/${orderId}/status`, { status: newStatus });
+      if (response.data.success) {
+        toast.success(`Order status updated to ${newStatus}`);
+        fetchOrders();
+      }
+    } catch (error: any) {
+      console.error("Failed to update order status:", error);
+      toast.error(error.response?.data?.message || "Failed to update status");
     }
   };
 
@@ -160,8 +174,10 @@ export default function OrdersPage() {
         return <Badge className="bg-amber-500/10 text-amber-600 border-amber-200/50">Pending</Badge>;
       case "paid":
         return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200/50">Paid</Badge>;
+      case "shipped":
+        return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200/50">Shipped</Badge>;
       case "delivered":
-        return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200/50">Delivered</Badge>;
+        return <Badge className="bg-indigo-500/10 text-indigo-600 border-indigo-200/50">Delivered</Badge>;
       case "cancelled":
         return <Badge variant="destructive" className="opacity-70">Cancelled</Badge>;
       default:
@@ -179,7 +195,7 @@ export default function OrdersPage() {
           />
           {auth?.hasPermission('order.create') && (
             <Button className="w-full md:w-auto gap-2" onClick={() => setIsModalOpen(true)}>
-                <Plus className="h-4 w-4" /> Create Order
+              <Plus className="h-4 w-4" /> Create Order
             </Button>
           )}
         </div>
@@ -198,67 +214,67 @@ export default function OrdersPage() {
                 {!isCustomer && (
                   <div className="grid gap-2">
                     <Label>Select Customer</Label>
-                    <Select value={newOrder.customerId} onValueChange={(val) => setNewOrder({...newOrder, customerId: val})}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select customer" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {customers.map(c => (
-                                <SelectItem key={c._id} value={c._id}>{c.name} ({c.email})</SelectItem>
-                            ))}
-                        </SelectContent>
+                    <Select value={newOrder.customerId} onValueChange={(val) => setNewOrder({ ...newOrder, customerId: val })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select customer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {customers.map(c => (
+                          <SelectItem key={c._id} value={c._id}>{c.name} ({c.email})</SelectItem>
+                        ))}
+                      </SelectContent>
                     </Select>
                   </div>
                 )}
-                
+
                 <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <Label className="text-base font-semibold">Items</Label>
-                        <Button type="button" variant="outline" size="sm" onClick={handleAddItem}>Add Item</Button>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base font-semibold">Items</Label>
+                    <Button type="button" variant="outline" size="sm" onClick={handleAddItem}>Add Item</Button>
+                  </div>
+                  {newOrder.items.map((item, idx) => (
+                    <div key={idx} className="grid grid-cols-12 gap-2 border p-3 rounded-lg relative group">
+                      <div className="col-span-6 grid gap-1">
+                        <Label className="text-[10px] uppercase text-muted-foreground">Item Name</Label>
+                        <Input
+                          className="h-8"
+                          placeholder="Product Name"
+                          value={item.name}
+                          onChange={(e) => handleUpdateItem(idx, 'name', e.target.value)}
+                        />
+                      </div>
+                      <div className="col-span-3 grid gap-1">
+                        <Label className="text-[10px] uppercase text-muted-foreground">Price</Label>
+                        <Input
+                          className="h-8"
+                          type="number"
+                          placeholder="0.00"
+                          value={item.price}
+                          onChange={(e) => handleUpdateItem(idx, 'price', Number(e.target.value))}
+                        />
+                      </div>
+                      <div className="col-span-3 grid gap-1">
+                        <Label className="text-[10px] uppercase text-muted-foreground">Qty</Label>
+                        <Input
+                          className="h-8"
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => handleUpdateItem(idx, 'quantity', Number(e.target.value))}
+                        />
+                      </div>
                     </div>
-                    {newOrder.items.map((item, idx) => (
-                        <div key={idx} className="grid grid-cols-12 gap-2 border p-3 rounded-lg relative group">
-                            <div className="col-span-6 grid gap-1">
-                                <Label className="text-[10px] uppercase text-muted-foreground">Item Name</Label>
-                                <Input 
-                                    className="h-8"
-                                    placeholder="Product Name" 
-                                    value={item.name} 
-                                    onChange={(e) => handleUpdateItem(idx, 'name', e.target.value)}
-                                />
-                            </div>
-                            <div className="col-span-3 grid gap-1">
-                                <Label className="text-[10px] uppercase text-muted-foreground">Price</Label>
-                                <Input 
-                                    className="h-8"
-                                    type="number" 
-                                    placeholder="0.00" 
-                                    value={item.price} 
-                                    onChange={(e) => handleUpdateItem(idx, 'price', Number(e.target.value))}
-                                />
-                            </div>
-                            <div className="col-span-3 grid gap-1">
-                                <Label className="text-[10px] uppercase text-muted-foreground">Qty</Label>
-                                <Input 
-                                    className="h-8"
-                                    type="number" 
-                                    value={item.quantity} 
-                                    onChange={(e) => handleUpdateItem(idx, 'quantity', Number(e.target.value))}
-                                />
-                            </div>
-                        </div>
-                    ))}
+                  ))}
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
-                    <span className="font-semibold text-lg text-muted-foreground">Total Amount</span>
-                    <span className="font-bold text-2xl text-primary">${newOrder.amount.toFixed(2)}</span>
+                  <span className="font-semibold text-lg text-muted-foreground">Total Amount</span>
+                  <span className="font-bold text-2xl text-primary">${newOrder.amount.toFixed(2)}</span>
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" type="button" onClick={() => setIsModalOpen(false)}>Cancel</Button>
                 <Button type="submit" disabled={creating}>
-                    {creating ? "Processing..." : "Create Order"}
+                  {creating ? "Processing..." : "Create Order"}
                 </Button>
               </DialogFooter>
             </form>
@@ -349,16 +365,19 @@ export default function OrdersPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuLabel>Order Management</DropdownMenuLabel>
-                          <DropdownMenuItem className="gap-2">
-                             <Package className="h-4 w-4" /> View Details
-                          </DropdownMenuItem>
                           {auth?.hasPermission('manage_orders') && (
                             <>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="gap-2">
+                              <DropdownMenuItem className="gap-2" onClick={() => handleUpdateStatus(order._id, 'pending')}>
+                                <Clock className="h-4 w-4" /> Mark Pending
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="gap-2" onClick={() => handleUpdateStatus(order._id, 'paid')}>
+                                <CreditCard className="h-4 w-4" /> Mark Paid
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="gap-2" onClick={() => handleUpdateStatus(order._id, 'shipped')}>
                                 <Truck className="h-4 w-4" /> Mark Shipped
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="gap-2">
+                              <DropdownMenuItem className="gap-2" onClick={() => handleUpdateStatus(order._id, 'delivered')}>
                                 <CheckCircle2 className="h-4 w-4" /> Mark Delivered
                               </DropdownMenuItem>
                             </>

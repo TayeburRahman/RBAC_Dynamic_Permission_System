@@ -353,9 +353,14 @@ cron.schedule("* * * * *", async () => {
 });
 
 const updateProfileImage = async (userId: string, profileImage: string) => {
+  // Store only the filename, not the full absolute path
+  // req.file.path gives absolute path like /home/.../uploads/profileImage-123.png
+  // We only need the filename since express.static('uploads') serves from that folder
+  const filename = profileImage.includes('/') ? profileImage.split('/').pop()! : profileImage;
+
   const result = await Auth.findByIdAndUpdate(
     userId,
-    { profile_image: profileImage },
+    { profile_image: filename },
     { new: true }
   ).select('-password');
 

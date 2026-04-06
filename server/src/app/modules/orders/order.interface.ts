@@ -9,7 +9,7 @@ export type IOrderItem = {
 export type IOrder = {
   orderId: string;
   amount: number;
-  status: 'pending' | 'paid' | 'delivered' | 'cancelled';
+  status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
   customerId: Types.ObjectId;
   items: IOrderItem[];
   createdAt: Date;

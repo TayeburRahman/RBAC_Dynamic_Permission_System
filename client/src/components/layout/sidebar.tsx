@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/providers/auth-provider";
 import { useEffect } from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface NavItem {
   name: string;
@@ -130,7 +130,8 @@ const Sidebar = ({
         {auth?.user && (
           <div className="flex items-center gap-3 px-1">
             <Avatar className="h-8 w-8">
-              <AvatarFallback className="text-xs bg-primary/10 text-primary">
+              <AvatarImage src={auth?.user?.profile_image ? `${process.env.NEXT_PUBLIC_BASE_API}/${auth.user.profile_image}` : ""} />
+              <AvatarFallback className="text-xs bg-primary/10 text-primary uppercase">
                 {getInitials(auth.user.name || auth.user.email)}
               </AvatarFallback>
             </Avatar>

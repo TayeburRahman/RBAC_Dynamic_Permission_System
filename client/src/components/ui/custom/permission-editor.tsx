@@ -29,6 +29,7 @@ export default function PermissionEditor({ userId, userName, onClose }: Permissi
   const [allPermissions, setAllPermissions] = useState<any[]>([]);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [togglingKeys, setTogglingKeys] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export default function PermissionEditor({ userId, userName, onClose }: Permissi
     fetchData();
   }, [userId]);
 
-  const togglePermission = (key: string) => {
+  const togglePermission = async (key: string) => {
     // Grant Ceiling Check: can't toggle what you don't have (unless Super Admin)
     const canToggle = auth?.user?.role === "SUPER_ADMIN" || auth?.hasPermission(key);
     
@@ -62,22 +63,27 @@ export default function PermissionEditor({ userId, userName, onClose }: Permissi
       return;
     }
 
-    setUserPermissions(prev => 
-      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
-    );
-  };
-
-  const handleSave = async () => {
     if (!userId) return;
-    setSaving(true);
+
+    // Optimistic Update
+    const newPermissions = userPermissions.includes(key) 
+      ? userPermissions.filter(k => k !== key) 
+      : [...userPermissions, key];
+    
+    // Set loading for this specific switch
+    setTogglingKeys(prev => [...prev, key]);
+    
     try {
-      await api.put(`/user-permissions/${userId}`, { permissions: userPermissions });
-      toast.success("Permissions updated successfully");
-      onClose();
+      // Direct API update on toggle
+      const response = await api.put(`/user-permissions/${userId}`, { permissions: newPermissions });
+      setUserPermissions(response.data.data);
+      toast.success(userPermissions.includes(key) ? "Permission revoked" : "Permission granted", {
+        duration: 2000,
+      });
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to update permissions");
+      toast.error(err.response?.data?.message || "Failed to update permission");
     } finally {
-      setSaving(false);
+      setTogglingKeys(prev => prev.filter(k => k !== key));
     }
   };
 
@@ -99,58 +105,72 @@ export default function PermissionEditor({ userId, userName, onClose }: Permissi
         <Separator />
 
         <ScrollArea className="flex-1 -mx-6 px-6">
-          <div className="py-6 space-y-6">
+          <div className="py-6 space-y-8">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
                 <Loader2 className="h-8 w-8 animate-spin text-primary opacity-50" />
                 <p className="text-sm text-muted-foreground">Synchronizing permission atoms...</p>
               </div>
             ) : (
-              allPermissions.map((perm) => {
-                const isAssigned = userPermissions.includes(perm.key);
-                const isRestricted = auth?.user?.role !== "SUPER_ADMIN" && !auth?.hasPermission(perm.key);
-
-                return (
-                  <div 
-                    key={perm.key} 
-                    className={`flex items-start justify-between gap-4 p-4 rounded-xl border transition-all ${
-                      isRestricted ? "bg-muted/30 opacity-60 cursor-not-allowed" : "hover:bg-accent/50 group"
-                    }`}
-                  >
-                    <div className="flex flex-col gap-1 pr-6 flex-1">
-                      <Label htmlFor={perm.key} className="text-sm font-semibold cursor-pointer group-hover:text-primary transition-colors flex items-center gap-2">
-                        {perm.label}
-                        {isRestricted && <Shield className="h-3 w-3 text-muted-foreground" />}
-                      </Label>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        {perm.description}
-                      </p>
-                    </div>
-                    <Switch
-                      id={perm.key}
-                      checked={isAssigned}
-                      onCheckedChange={() => togglePermission(perm.key)}
-                      disabled={isRestricted || saving}
-                      className="mt-0.5"
-                    />
+              Object.entries(
+                allPermissions.reduce((acc: any, perm) => {
+                  const cat = perm.category || "General";
+                  if (!acc[cat]) acc[cat] = [];
+                  acc[cat].push(perm);
+                  return acc;
+                }, {})
+              ).map(([category, perms]: [string, any]) => (
+                <div key={category} className="space-y-4">
+                  <div className="px-1 flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{category}</h3>
                   </div>
-                )
-              })
+                  <div className="space-y-3">
+                    {perms.map((perm: any) => {
+                      const isAssigned = userPermissions.includes(perm.key);
+                      const isRestricted = auth?.user?.role !== "SUPER_ADMIN" && !auth?.hasPermission(perm.key);
+                      const isToggling = togglingKeys.includes(perm.key);
+
+                      return (
+                        <div 
+                          key={perm.key} 
+                          className={`flex items-start justify-between gap-4 p-4 rounded-xl border transition-all ${
+                            isRestricted ? "bg-muted/30 opacity-60 cursor-not-allowed" : "hover:bg-accent/50 group"
+                          }`}
+                        >
+                          <div className="flex flex-col gap-1 pr-6 flex-1">
+                            <Label htmlFor={perm.key} className="text-sm font-semibold cursor-pointer group-hover:text-primary transition-colors flex items-center gap-2">
+                              {perm.label}
+                              {isRestricted && <Shield className="h-3 w-3 text-muted-foreground" />}
+                            </Label>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              {perm.description}
+                            </p>
+                          </div>
+                          {isToggling ? (
+                            <Loader2 className="h-5 w-5 animate-spin text-primary/50 mt-1 mr-2" />
+                          ) : (
+                            <Switch
+                              id={perm.key}
+                              checked={isAssigned}
+                              onCheckedChange={() => togglePermission(perm.key)}
+                              disabled={isRestricted || isToggling}
+                              className="mt-0.5"
+                            />
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </ScrollArea>
 
         <div className="flex items-center gap-3 pt-4 border-t mt-auto -mx-6 px-6 pb-6">
-          <Button variant="outline" className="flex-1 gap-2 rounded-xl h-11" onClick={onClose}>
-            <X className="h-4 w-4" /> Cancel
-          </Button>
-          <Button 
-            className="flex-1 gap-2 rounded-xl h-11 shadow-lg shadow-primary/20" 
-            onClick={handleSave}
-            disabled={loading || saving}
-          >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save Changes
+          <Button className="w-full gap-2 rounded-xl h-11 shadow-lg" onClick={onClose}>
+            <Save className="h-4 w-4" /> Finish Editing
           </Button>
         </div>
       </SheetContent>
