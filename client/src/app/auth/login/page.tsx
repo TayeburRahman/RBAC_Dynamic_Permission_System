@@ -6,7 +6,7 @@ import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Mail } from "lucide-react"
+import { Mail, Shield } from "lucide-react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -50,14 +50,14 @@ export default function LoginPage() {
       .catch((err: any) => {
         const serverData = err?.response?.data;
         const msg = serverData?.message || err?.message || "Something went wrong. Please try again.";
-        
+
         // Check for field-specific errors from server
         if (serverData?.errorMessages && Array.isArray(serverData.errorMessages)) {
           serverData.errorMessages.forEach((error: any) => {
             if (error.path) {
-              emailForm.setError(error.path as any, { 
+              emailForm.setError(error.path as any, {
                 type: "server",
-                message: error.message 
+                message: error.message
               });
             }
           });
@@ -76,33 +76,45 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-1 lg:px-0">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-112.5 p-8">
-        <div className="flex flex-col items-center space-y-4 text-center">
-
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Sign in to continue</p>
-          </div>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <div className="w-full max-w-[440px] animate-in fade-in zoom-in duration-500">
+        <div className="flex flex-col items-center mb-8">
+          <Link href="/" className="mb-6 hover:scale-105 transition-transform">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                <Shield className="h-6 w-6" />
+              </div>
+              <div className="flex flex-col text-left">
+                <p className="font-black text-xl leading-none tracking-tight italic">RBAC SYSTEM</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold mt-1">Permission Platform</p>
+              </div>
+            </div>
+          </Link>
+          <h1 className="text-2xl font-black tracking-tight mb-2">Welcome Back</h1>
+          <p className="text-sm text-muted-foreground font-medium">Please enter your details to sign in</p>
         </div>
 
-        <div className="grid gap-6 rounded-2xl border bg-card p-6 shadow-sm">
+        <div className="bg-card border rounded-[32px] p-6 md:p-8 shadow-sm">
           <Form {...emailForm}>
-            <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="grid gap-4">
+            <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-5">
               <FormField
                 control={emailForm.control}
                 name="email"
                 render={({ field, fieldState }) => (
-                  <FormItem data-invalid={fieldState.invalid}>
-                    <FormLabel>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        Email Address
-                      </div>
-                    </FormLabel>
+                  <FormItem>
+                    <FormLabel className="text-muted-foreground font-bold text-xs uppercase tracking-widest ml-1">Email Address</FormLabel>
                     <FormControl>
-                      <Input placeholder="name@example.com" {...field} disabled={isLoading} aria-invalid={fieldState.invalid} autoComplete="email" />
+                      <div className="relative group">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
+                        <Input
+                          placeholder="name@example.com"
+                          className="h-12 pl-11 focus:border-primary transition-all rounded-2xl"
+                          {...field}
+                          disabled={isLoading}
+                        />
+                      </div>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="font-bold italic" />
                   </FormItem>
                 )}
               />
@@ -111,24 +123,44 @@ export default function LoginPage() {
                 control={emailForm.control}
                 name="password"
                 render={({ field, fieldState }) => (
-                  <FormItem data-invalid={fieldState.invalid}>
-                    <FormLabel>Password</FormLabel>
+                  <FormItem>
+                    <FormLabel className="text-muted-foreground font-bold text-xs uppercase tracking-widest ml-1">Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} disabled={isLoading} placeholder="Enter your password" aria-invalid={fieldState.invalid} autoComplete="current-password" />
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        className="h-12 focus:border-primary transition-all rounded-2xl"
+                        {...field}
+                        disabled={isLoading}
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="font-bold italic" />
                   </FormItem>
                 )}
               />
 
-              <Button type="submit" disabled={isLoading} size="lg">
-                {isLoading ? "Signing In..." : "Sign In"}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-12 text-[14px] font-black uppercase tracking-widest rounded-2xl bg-primary hover:bg-primary/90 text-white hover:text-white shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              >
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 border-2 border-primary-foreground/30 border-t-white rounded-full animate-spin" />
+                    Signing In...
+                  </div>
+                ) : "Sign In"}
               </Button>
             </form>
           </Form>
 
-          <div className="text-center text-sm">
-            <p className="text-muted-foreground">Don't have an account? <Link href="/auth/register" className="font-semibold text-primary hover:underline underline-offset-4">Sign up</Link></p>
+          <div className="mt-8 pt-6 border-t text-center">
+            <p className="text-sm text-muted-foreground font-medium">
+              Don't have an account?{" "}
+              <Link href="/auth/register" className="font-bold text-primary hover:underline underline-offset-4">
+                Create one now
+              </Link>
+            </p>
           </div>
         </div>
       </div>
