@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { store } from '@/store/store';
 import { AuthProvider } from '@/providers/auth-provider';
 import { SocketProvider } from '@/providers/socket-provider';
+import { NotificationProvider } from '@/providers/notification-provider';
 import { Toaster } from "@/components/ui/sonner";
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
@@ -21,7 +22,9 @@ export default function ClientProviders({ children }: { children: React.ReactNod
       <Provider store={store}>
         <AuthProvider>
           <SocketProvider>
-            {children}
+            <NotificationProvider>
+              {children}
+            </NotificationProvider>
           </SocketProvider>
         </AuthProvider>
       </Provider>

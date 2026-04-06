@@ -7,6 +7,7 @@ import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
 import { sendNotification } from '../../../utils/notification';
 import { CacheService } from '../cache/cache.service';
+import { NotificationService } from '../notifications/notification.service';
 
 const CACHE_KEY_ORDER_STATS = 'order_stats';
 
@@ -28,6 +29,14 @@ const createOrder = async (customerId: string, payload: Partial<IOrder>, actorId
     'CREATE_ORDER',
     { target: 'Order', targetId: result._id, metadata: { orderId: result.orderId, amount: result.amount } }
   );
+
+  await NotificationService.createNotification({
+    recipient: customerId,
+    title: "Order Placed Successfully",
+    message: `Your order #${result.orderId} has been created and is pending confirmation.`,
+    type: "ORDER_CREATED",
+    link: `/customer-portal`
+  });
 
   await CacheService.del(CACHE_KEY_ORDER_STATS);
   
@@ -90,11 +99,13 @@ const updateOrderStatus = async (id: string, actorId: string, status: string) =>
     { target: 'Order', targetId: id, metadata: { status } }
   );
 
-  sendNotification(
-    result.customerId.toString(),
-    `Order #${result.orderId} status updated to ${status}`,
-    { orderId: result._id, status }
-  );
+  await NotificationService.createNotification({
+    recipient: result.customerId.toString(),
+    title: "Order Status Update",
+    message: `Your order #${result.orderId} has been updated to ${status.toUpperCase()}`,
+    type: "SYSTEM",
+    link: `/customer-portal`
+  });
 
   await CacheService.del(CACHE_KEY_ORDER_STATS);
 

@@ -16,9 +16,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { ThemeToggle } from "../ui/custom/theme-toggle";
 import { useAuthContext } from "@/providers/auth-provider";
+import { useNotifications } from "@/providers/notification-provider";
 
 const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
   const auth = useAuthContext();
+  const { unreadCount } = useNotifications();
   const user = auth?.user;
   const isLoading = auth?.initializing;
 
@@ -47,9 +49,14 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full h-9 w-9"
+              className="rounded-full h-9 w-9 relative"
             >
               <Bell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground animate-in zoom-in duration-300">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </Button>
           </Link>
 

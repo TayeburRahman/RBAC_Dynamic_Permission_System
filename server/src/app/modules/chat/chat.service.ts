@@ -4,6 +4,7 @@ import { Types } from 'mongoose';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
 import Auth from '../auth/auth.model';
+import { NotificationService } from '../notifications/notification.service';
 
 const POPULATE_PARTICIPANTS = {
   path: 'participants',
@@ -99,6 +100,19 @@ const sendMessage = async (payload: Partial<IMessage> & { conversationId: string
   await Conversation.findByIdAndUpdate(conversationId, {
     lastMessage: message._id
   });
+
+  // Create notification for recipient
+  if (recipient) {
+    const senderUser = await Auth.findById(sender);
+    await NotificationService.createNotification({
+        recipient: recipient.toString(),
+        sender: sender?.toString(),
+        title: "New Message",
+        message: `You received a new message from ${senderUser?.name || 'someone'}`,
+        type: "NEW_MESSAGE",
+        link: `/chat`
+    });
+  }
 
   return populatedMessage;
 };

@@ -1,6 +1,7 @@
 import Task from './task.model';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
+import { NotificationService } from '../notifications/notification.service';
 
 const createTask = async (data: {
   title: string;
@@ -10,7 +11,20 @@ const createTask = async (data: {
   dueDate?: Date;
   createdBy: string;
 }) => {
-  return Task.create(data);
+  const task = await Task.create(data);
+  
+  if (task.assignedTo) {
+    await NotificationService.createNotification({
+        recipient: task.assignedTo.toString(),
+        sender: task.createdBy.toString(),
+        title: "New Task Assigned",
+        message: `You have been assigned a new task: ${task.title}`,
+        type: "TASK_ASSIGNED",
+        link: `/tasks/${task._id}`
+    });
+  }
+  
+  return task;
 };
 
 const getTasks = async (query: {
@@ -60,8 +74,20 @@ const updateTask = async (
   id: string,
   data: { title?: string; description?: string; status?: string; priority?: string; assignedTo?: string; dueDate?: Date }
 ) => {
+  const oldTask = await Task.findById(id);
   const task = await Task.findByIdAndUpdate(id, { $set: data }, { new: true });
   if (!task) throw new ApiError(httpStatus.NOT_FOUND, 'Task not found');
+  
+  if (data.status && oldTask && oldTask.status !== data.status && task.assignedTo) {
+    await NotificationService.createNotification({
+        recipient: task.assignedTo.toString(),
+        title: "Task Status Updated",
+        message: `The status of task "${task.title}" has been updated to "${data.status.toUpperCase()}"`,
+        type: "TASK_STATUS_UPDATE",
+        link: `/tasks/${task._id}`
+    });
+  }
+  
   return task;
 };
 

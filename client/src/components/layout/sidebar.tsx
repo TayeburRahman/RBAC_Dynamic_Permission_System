@@ -14,6 +14,7 @@ import {
   Menu,
   MessageSquare,
   ShoppingBag,
+  Ticket,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -41,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { name: "Tasks",        icon: CheckSquare,   href: "/tasks",       permission: ["task.view", "task.view.own"] },
   { name: "Reports",      icon: BarChart3,     href: "/reports",     permission: "view_reports"      },
   { name: "Audit Log",    icon: ClipboardList, href: "/audit-log",   permission: "view_audit_logs"   },
-  { name: "Tickets",      icon: MessageSquare, href: "/tickets",     permission: "view_tickets"      },
+  { name: "Tickets",      icon: Ticket,        href: "/tickets",     permission: "view_tickets"      },
   { name: "Messenger",    icon: MessageSquare, href: "/chat",        permission: "view_dashboard"   },
   { name: "Settings",     icon: Settings,      href: "/settings",    permission: "view_dashboard"   },
 ];

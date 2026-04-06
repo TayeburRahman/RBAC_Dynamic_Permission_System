@@ -13,6 +13,7 @@ import { ExportRoutes } from '../modules/export/export.routes';
 import { ReportRoutes } from '../modules/reports/report.routes';
 import { HealthRoutes } from '../modules/health/health.routes';
 import { ChatRoutes } from '../modules/chat/chat.routes';
+import { NotificationRoutes } from '../modules/notifications/notification.routes';
 
 const router = express.Router();
 
@@ -31,6 +32,7 @@ const moduleRoutes = [
   { path: '/reports', route: ReportRoutes },
   { path: '/health', route: HealthRoutes },
   { path: '/chat', route: ChatRoutes },
+  { path: '/notifications', route: NotificationRoutes },
 ];
 
 moduleRoutes.forEach(route => {
