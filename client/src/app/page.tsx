@@ -141,7 +141,6 @@ export default function LandingPage() {
     if (!auth) return;
     if (auth.initializing) return;
 
-    // If authenticated, redirect away from landing page
     if (auth.user) {
       const role = (auth.user as any)?.role;
       if (role === 'CUSTOMER') {
@@ -175,19 +174,16 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#020617] text-white selection:bg-cyan-500/30 relative flex flex-col overflow-x-hidden font-sans">
-      {/* 2. Topographic Mesh Accents (Left & Right) - Hidden on Mobile */}
+
       <div className="hidden lg:block z-0 overflow-hidden pointer-events-none">
-        {/* Right Mesh - Elevated and Rotated */}
         <div className="absolute -right-48 top-9 w-[450px] aspect-square transition-opacity duration-1000">
           <Image src="/page-mesh.png" alt="" fill className="object-contain rotate-12" />
         </div>
-        {/* Left Mesh - Mirrored and Lowered */}
         <div className="absolute -left-65 top-[30%] w-[400px] aspect-square transition-opacity duration-1000">
           <Image src="/page-mesh.png" alt="" fill className="object-contain -rotate-[35deg] scale-x-[-1] blur-[0.5px]" />
         </div>
       </div>
 
-      {/* Dynamic Background Glows */}
       <div className="absolute top-[-100px] left-1/2 translate-x-[-50%] w-[800px] h-[400px] bg-[#0663CDA6] blur-[120px] rounded-[100%] pointer-events-none" />
       <div className="hidden lg:block absolute top-[25%] left-[-150px] w-[500px] h-[500px] bg-[#0663CDA6] blur-[100px] rounded-full pointer-events-none " />
       <div className="hidden lg:block absolute top-[40%] right-[-150px] w-[600px] h-[600px] bg-[#0663CDA6] blur-[120px] rounded-full pointer-events-none " />
@@ -369,12 +365,12 @@ export default function LandingPage() {
 
       {/* ─── Footer ─── */}
       <footer className="relative z-10 w-full mt-auto pt-20 pb-12 border-t border-white/5 bg-[#020617]/80 backdrop-blur-xl overflow-hidden">
-        {/* Background Mesh for Footer */}
+
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#0663CD]/5 blur-[120px] rounded-full pointer-events-none translate-x-1/2 -translate-y-1/2" />
 
         <div className="mx-auto max-w-[1240px] px-4 md:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
-            {/* Branding Column */}
+
             <div className="flex flex-col gap-6">
               <div className="flex items-center gap-3 cursor-pointer group">
                 <div className="p-2 rounded-lg bg-white group-hover:bg-primary transition-all duration-300">
@@ -397,7 +393,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Call to Action Column (Customer Focused) */}
             <div className="lg:col-span-3 flex flex-col lg:flex-row items-center justify-between gap-8 p-8 md:p-12 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md w-full">
               <div className="flex flex-col gap-4 text-center lg:text-left w-full lg:w-auto">
                 <h4 className="text-white font-black text-2xl md:text-4xl tracking-tight leading-tight">Ready to Secure Your System?</h4>
