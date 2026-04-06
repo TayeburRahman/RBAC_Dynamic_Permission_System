@@ -16,11 +16,20 @@ const socket = (io: Server) => {
     onlineUsers.add(currentUserId);
     io.emit("onlineUser", Array.from(onlineUsers));
 
+    // Typing indicators
+    socket.on('typing', (data: { recipientId: string; senderId: string }) => {
+      socket.to(data.recipientId).emit('typing', data);
+    });
+
+    socket.on('stop_typing', (data: { recipientId: string; senderId: string }) => {
+      socket.to(data.recipientId).emit('stop_typing', data);
+    });
+
     // Handle user disconnection
     socket.on("disconnect", () => {
       console.log("A user disconnected", currentUserId);
-      onlineUsers.delete(currentUserId); // Remove user from online users
-      io.emit("onlineUser", Array.from(onlineUsers)); // Update online user list
+      onlineUsers.delete(currentUserId);
+      io.emit("onlineUser", Array.from(onlineUsers));
     });
   });
 };
