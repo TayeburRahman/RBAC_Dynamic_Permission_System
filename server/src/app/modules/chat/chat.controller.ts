@@ -121,11 +121,27 @@ const searchUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const markAsRead = catchAsync(async (req: Request, res: Response) => {
+  const actor = req.user as any;
+  const currentUserId = actor.authId || actor._id;
+  const { conversationId } = req.params;
+
+  await ChatService.markAsRead(conversationId, currentUserId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Messages marked as read',
+    data: null
+  });
+});
+
 export const ChatController = {
   createConversation,
   getConversations,
   getMessages,
   sendMessageWithFiles,
   deleteMessage,
-  searchUsers
+  searchUsers,
+  markAsRead
 };

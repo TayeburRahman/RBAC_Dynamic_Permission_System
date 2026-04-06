@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/providers/auth-provider";
 import { User, Mail, Shield, Lock, Save, Camera, Loader2 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -78,7 +77,7 @@ export default function SettingsPage() {
       const res = await api.patch("/auth/profile-image", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      
+
       // Update local auth state if possible, or just refresh
       toast.success("Profile image updated");
       if (auth?.refreshUser) await auth.refreshUser();
@@ -99,8 +98,8 @@ export default function SettingsPage() {
 
         <div className="grid gap-8 mt-8 max-w-4xl">
           {/* Profile Section */}
-          <Section 
-            title="Profile Information" 
+          <Section
+            title="Profile Information"
             description="Update your personal details and avatar."
             icon={User}
           >
@@ -112,18 +111,18 @@ export default function SettingsPage() {
                     {auth?.user?.name?.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <button 
+                <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
                   className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:scale-110 transition-transform disabled:opacity-50"
                 >
                   {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
                 </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  className="hidden" 
-                  accept="image/*" 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
                   onChange={handleImageUpload}
                 />
               </div>
@@ -134,11 +133,11 @@ export default function SettingsPage() {
                     <Label htmlFor="name">Full Name</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        id="name" 
-                        value={name} 
+                      <Input
+                        id="name"
+                        value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="pl-10 h-11" 
+                        className="pl-10 h-11"
                       />
                     </div>
                   </div>
@@ -152,27 +151,27 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <div className="relative">
-                      <Input 
-                        id="phone" 
-                        value={phoneNumber} 
+                      <Input
+                        id="phone"
+                        value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
-                        className="h-11" 
+                        className="h-11"
                       />
                     </div>
                   </div>
                 </div>
-                
+
                 <Button onClick={handleUpdateProfile} disabled={loading} className="w-fit gap-2 h-11 px-6">
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                   Save Changes
-                </Button> 
+                </Button>
               </div>
             </div>
           </Section>
 
           {/* Security Section */}
-          <Section 
-            title="Security & Password" 
+          <Section
+            title="Security & Password"
             description="Change your password regularly to keep your account safe."
             icon={Lock}
           >
@@ -180,9 +179,9 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="current">Current Password</Label>
-                  <Input 
-                    id="current" 
-                    type="password" 
+                  <Input
+                    id="current"
+                    type="password"
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
                     className="h-11"
@@ -191,9 +190,9 @@ export default function SettingsPage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="new">New Password</Label>
-                    <Input 
-                      id="new" 
-                      type="password" 
+                    <Input
+                      id="new"
+                      type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       className="h-11"
@@ -201,9 +200,9 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirm">Confirm New Password</Label>
-                    <Input 
-                      id="confirm" 
-                      type="password" 
+                    <Input
+                      id="confirm"
+                      type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="h-11"
@@ -211,10 +210,10 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-              <Button 
-                onClick={handleUpdatePassword} 
-                disabled={loading || !oldPassword || !newPassword} 
-                variant="default" 
+              <Button
+                onClick={handleUpdatePassword}
+                disabled={loading || !oldPassword || !newPassword}
+                variant="default"
                 className="w-fit gap-2 h-11 px-6"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
@@ -224,8 +223,8 @@ export default function SettingsPage() {
           </Section>
 
           {/* Role Section */}
-          <Section 
-            title="Account Level" 
+          <Section
+            title="Account Level"
             description="Your current permissions and organizational role."
             icon={Shield}
           >

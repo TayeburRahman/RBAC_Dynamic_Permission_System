@@ -20,6 +20,9 @@ import {
   ImageIcon,
   Loader2,
   ChevronLeft,
+  Mail,
+  Phone,
+  Calendar,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -27,13 +30,19 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, formatDistanceToNow, isValid } from "date-fns";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
     Popover,
@@ -77,11 +86,12 @@ interface Conversation {
   _id: string;
   participants: any[];
   lastMessage?: any;
+  unreadCount?: number;
 }
 
 export default function ChatPage() {
   const auth = useAuthContext();
-  const { socket } = useSocket();
+  const { socket, onlineUsers } = useSocket();
   const currentUserId = auth?.user?._id;
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -98,6 +108,9 @@ export default function ChatPage() {
   const [userSearchResults, setUserSearchResults] = useState<any[]>([]);
   const [searchingUsers, setSearchingUsers] = useState(false);
   const [mobileShowSidebar, setMobileShowSidebar] = useState(true);
+  const [isMessageSearchMode, setIsMessageSearchMode] = useState(false);
+  const [messageSearchQuery, setMessageSearchQuery] = useState("");
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isCustomer = auth?.user?.role === "CUSTOMER";
@@ -144,10 +157,14 @@ export default function ChatPage() {
   useEffect(() => {
     if (selectedConversation) {
       fetchMessages(selectedConversation._id);
+      // Mark as read when opening
+      api.patch(`/chat/mark-as-read/${selectedConversation._id}`).then(() => {
+          fetchConversations(); // Update counts
+      });
     } else {
       setMessages([]);
     }
-  }, [selectedConversation, fetchMessages]);
+  }, [selectedConversation, fetchMessages, fetchConversations]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -405,7 +422,22 @@ export default function ChatPage() {
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-bold truncate">{user.name}</h4>
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-sm font-bold truncate">{user.name}</h4>
+                              {onlineUsers.includes(String(user._id)) ? (
+                                <span className="text-[7px] font-black uppercase text-emerald-500 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100">Online</span>
+                              ) : (
+                                <span className={cn(
+                                    "text-[7px] font-bold px-1.5 py-0.5 rounded-full border whitespace-nowrap",
+                                    (user.lastOnline || user.updatedAt) ? "text-muted-foreground bg-muted/50 border-muted/20" : "text-amber-600 bg-amber-50 border-amber-100"
+                                )}>
+                                  {(() => {
+                                      const date = new Date(user.lastOnline || user.updatedAt || user.createdAt);
+                                      return isValid(date) ? `Seen ${formatDistanceToNow(date, { addSuffix: true })}` : "Away";
+                                  })()}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-[10px] text-muted-foreground uppercase font-semibold">{user.role}</p>
                           </div>
                         </button>
@@ -438,28 +470,62 @@ export default function ChatPage() {
                             key={conv._id}
                             onClick={() => setSelectedConversation(conv)}
                             className={cn(
-                              "w-full flex items-center gap-3 p-3 rounded-xl transition-all",
+                              "w-full flex items-center gap-3 p-3 rounded-xl transition-all relative group",
                               isActive ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-accent"
                             )}
                           >
-                            <Avatar className="h-10 w-10 border shadow-sm">
-                              <AvatarImage src={otherUser?.profile_image ? `${process.env.NEXT_PUBLIC_BASE_API}/${otherUser.profile_image}` : ""} />
-                              <AvatarFallback className={cn("font-bold text-xs", isActive ? "bg-white/20 text-white" : "bg-primary/10 text-primary")}>
-                                {otherUser?.name?.charAt(0) || "U"}
-                              </AvatarFallback>
-                            </Avatar>
+                            <div className="relative">
+                                <Avatar className={cn(
+                                    "h-10 w-10 border shadow-sm",
+                                    onlineUsers.includes(String(otherUser?._id)) && !isActive && "ring-2 ring-emerald-500 ring-offset-2"
+                                )}>
+                                    <AvatarImage src={otherUser?.profile_image ? `${process.env.NEXT_PUBLIC_BASE_API}/${otherUser.profile_image}` : ""} />
+                                    <AvatarFallback className={cn("font-bold text-xs", isActive ? "bg-white/20 text-white" : "bg-primary/10 text-primary")}>
+                                        {otherUser?.name?.charAt(0) || "U"}
+                                    </AvatarFallback>
+                                </Avatar>
+                                {onlineUsers.includes(String(otherUser?._id)) && (
+                                    <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-emerald-500 border-2 border-background rounded-full" />
+                                )}
+                            </div>
                             <div className="flex-1 text-left min-w-0">
                               <div className="flex justify-between items-center pr-1">
-                                <h4 className="text-sm font-bold truncate">{otherUser?.name || "Anonymous"}</h4>
+                                <h4 className={cn(
+                                    "text-sm truncate",
+                                    !isActive && (conv.unreadCount ?? 0) > 0 ? "font-black" : "font-bold"
+                                )}>
+                                    {otherUser?.name || "Anonymous"}
+                                </h4>
                                 {conv.lastMessage && (
-                                  <span className={cn("text-[10px]", isActive ? "text-primary-foreground/70" : "text-muted-foreground")}>
-                                    {format(new Date(conv.lastMessage.createdAt), "HH:mm")}
-                                  </span>
+                                  <div className="flex flex-col items-end shrink-0 pl-2">
+                                      <span className={cn("text-[10px]", isActive ? "text-primary-foreground/70" : "text-muted-foreground")}>
+                                        {format(new Date(conv.lastMessage.createdAt), "HH:mm")}
+                                      </span>
+                                      {!onlineUsers.includes(String(otherUser?._id)) && (
+                                         <span className={cn("text-[8px] mt-0.5 whitespace-nowrap", isActive ? "text-primary-foreground/50 italic font-medium" : "text-muted-foreground/60")}>
+                                            {(() => {
+                                                const date = new Date(otherUser?.lastOnline || otherUser?.updatedAt || otherUser?.createdAt);
+                                                return isValid(date) ? formatDistanceToNow(date, { addSuffix: true }) : "Away";
+                                            })()}
+                                         </span>
+                                      )}
+                                  </div>
                                 )}
                               </div>
-                              <p className={cn("text-xs truncate font-medium", isActive ? "text-primary-foreground/80" : "text-muted-foreground")}>
-                                {conv.lastMessage?.isDeleted ? "Message removed" : conv.lastMessage?.content || "Start a conversation"}
-                              </p>
+                              <div className="flex items-center justify-between gap-1">
+                                <p className={cn(
+                                    "text-xs truncate",
+                                    !isActive && (conv.unreadCount ?? 0) > 0 ? "font-bold text-foreground" : "font-medium text-muted-foreground",
+                                    isActive ? "text-primary-foreground/80" : ""
+                                )}>
+                                    {conv.lastMessage?.isDeleted ? "Message removed" : conv.lastMessage?.content || "Start a conversation"}
+                                </p>
+                                {!isActive && (conv.unreadCount ?? 0) > 0 && (
+                                    <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground animate-in zoom-in">
+                                        {conv.unreadCount}
+                                    </div>
+                                )}
+                              </div>
                             </div>
                           </button>
                         );
@@ -479,8 +545,8 @@ export default function ChatPage() {
             {selectedConversation ? (
               <>
                 {/* Chat Header */}
-                <div className="p-4 border-b flex items-center justify-between bg-card/50 backdrop-blur-sm z-10">
-                  <div className="flex items-center gap-3">
+                <div className={cn("p-4 border-b flex items-center justify-between bg-card/50 backdrop-blur-sm z-10 transition-all", isMessageSearchMode ? "h-[73px]" : "h-[73px]")}>
+                  <div className="flex items-center gap-3 flex-1">
                     <Button 
                         variant="ghost" 
                         size="icon" 
@@ -489,27 +555,92 @@ export default function ChatPage() {
                     >
                         <ChevronLeft className="h-5 w-5" />
                     </Button>
-                    <Avatar className="h-10 w-10 border shadow-sm ring-2 ring-primary/10">
-                      <AvatarImage src={getOtherUser(selectedConversation)?.profile_image ? `${process.env.NEXT_PUBLIC_BASE_API}/${getOtherUser(selectedConversation).profile_image}` : ""} />
-                      <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                        {getOtherUser(selectedConversation)?.name?.charAt(0) || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h4 className="text-sm font-bold leading-tight">{getOtherUser(selectedConversation)?.name}</h4>
-                      <p className="text-[10px] uppercase font-black tracking-widest text-primary/60">
-                        {remoteTyping ? "Typing..." : getOtherUser(selectedConversation)?.role || "User"}
-                      </p>
+
+                    {!isMessageSearchMode ? (
+                      <>
+                        <div className="relative">
+                            <Avatar className="h-10 w-10 border shadow-sm ring-2 ring-primary/10">
+                                <AvatarImage src={getOtherUser(selectedConversation)?.profile_image ? `${process.env.NEXT_PUBLIC_BASE_API}/${getOtherUser(selectedConversation).profile_image}` : ""} />
+                                <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                                    {getOtherUser(selectedConversation)?.name?.charAt(0) || "U"}
+                                </AvatarFallback>
+                            </Avatar>
+                            {onlineUsers.includes(String(getOtherUser(selectedConversation)?._id)) && (
+                                <div className="absolute bottom-0 right-0 h-3 w-3 bg-emerald-500 border-2 border-background rounded-full" />
+                            )}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-bold leading-tight truncate">{getOtherUser(selectedConversation)?.name}</h4>
+                          <p className="text-[10px] uppercase font-black tracking-widest text-primary/60">
+                            {remoteTyping ? "Typing..." : (
+                                onlineUsers.includes(String(getOtherUser(selectedConversation)?._id)) 
+                                    ? "Online" 
+                                    : (() => {
+                                        const date = new Date(getOtherUser(selectedConversation)?.lastOnline || getOtherUser(selectedConversation)?.updatedAt);
+                                        return isValid(date) ? `Seen ${formatDistanceToNow(date, { addSuffix: true })}` : "Away";
+                                    })()
+                            )}
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="relative flex-1 animate-in slide-in-from-left-2 duration-300">
+                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                           <Input 
+                              autoFocus
+                              placeholder="Search messages..." 
+                              value={messageSearchQuery}
+                              onChange={(e) => setMessageSearchQuery(e.target.value)}
+                              className="h-10 pl-10 text-sm bg-muted/50 border-none rounded-xl focus-visible:ring-2 focus-visible:ring-primary shadow-inner"
+                           />
+                           <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => {
+                                    setIsMessageSearchMode(false);
+                                    setMessageSearchQuery("");
+                                }}
+                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full hover:bg-white/20"
+                           >
+                                <X className="h-4 w-4" />
+                           </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {!isMessageSearchMode && (
+                    <div className="flex items-center gap-1 animate-in fade-in duration-300">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => setIsMessageSearchMode(true)}
+                            className="rounded-full h-10 w-10 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all"
+                        >
+                            <Search className="h-4 w-4" />
+                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 text-muted-foreground">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-52 p-1 rounded-2xl shadow-2xl border-primary/10">
+                                <DropdownMenuItem 
+                                    onClick={() => setIsProfileModalOpen(true)}
+                                    className="gap-3 rounded-xl py-3 cursor-pointer focus:bg-primary/5 hover:bg-primary/5 transition-all"
+                                >
+                                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                        <UserIcon className="h-4 w-4" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold">View Profile</p>
+                                        <p className="text-[10px] text-muted-foreground font-medium">User details & info</p>
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="rounded-full h-9 w-9">
-                      <Search className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="rounded-full h-9 w-9">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  )}
                 </div>
 
                 {/* Messages List */}
@@ -520,12 +651,15 @@ export default function ChatPage() {
                   {messages.map((message, idx) => {
                     const senderId = typeof message.sender === 'string' ? message.sender : message.sender?._id;
                     const isSelf = String(senderId) === String(currentUserId);
+                    const isMatch = messageSearchQuery && message.content?.toLowerCase().includes(messageSearchQuery.toLowerCase());
+
+                    if (messageSearchQuery && !isMatch) return null;
 
                     return (
                       <div
                         key={message._id}
                         className={cn(
-                          "flex flex-col max-w-[80%]",
+                          "flex flex-col max-w-[80%] animate-in fade-in slide-in-from-bottom-2 duration-300",
                           isSelf ? "ml-auto items-end" : "mr-auto items-start"
                         )}
                       >
@@ -695,6 +829,96 @@ export default function ChatPage() {
                     </Button>
                   </form>
                 </div>
+
+                {/* Profile Modal */}
+                <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+                  <DialogContent className="p-0 border-none rounded-[32px] overflow-hidden max-w-sm sm:max-w-md shadow-2xl bg-card">
+                    <div className="h-40 bg-primary relative">
+                         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-indigo-600" />
+                         <div className="absolute -bottom-14 left-1/2 -translate-x-1/2">
+                            <div className="relative">
+                              <Avatar className="h-28 w-28 border-[6px] border-card shadow-2xl ring-1 ring-black/5">
+                                  <AvatarImage src={getOtherUser(selectedConversation)?.profile_image ? `${process.env.NEXT_PUBLIC_BASE_API}/${getOtherUser(selectedConversation).profile_image}` : ""} />
+                                  <AvatarFallback className="bg-primary/10 text-primary font-bold text-3xl">
+                                      {getOtherUser(selectedConversation)?.name?.charAt(0) || "U"}
+                                  </AvatarFallback>
+                              </Avatar>
+                              {onlineUsers.includes(String(getOtherUser(selectedConversation)?._id)) && (
+                                  <div className="absolute bottom-2 right-2 h-6 w-6 bg-emerald-500 border-[4px] border-card rounded-full shadow-lg" />
+                              )}
+                            </div>
+                         </div>
+                    </div>
+                    <div className="pt-20 pb-10 px-8 text-center space-y-8">
+                        <div>
+                            <h3 className="text-2xl font-black text-foreground tracking-tight">{getOtherUser(selectedConversation)?.name}</h3>
+                            <div className="flex items-center justify-center gap-2 mt-2">
+                                <span className="text-[11px] uppercase font-black tracking-widest bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">
+                                    {getOtherUser(selectedConversation)?.role || "User"}
+                                </span>
+                                {onlineUsers.includes(String(getOtherUser(selectedConversation)?._id)) ? (
+                                    <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1.5 ml-1">
+                                        <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                        Active Now
+                                    </span>
+                                ) : (() => {
+                                    const date = new Date(getOtherUser(selectedConversation)?.lastOnline || getOtherUser(selectedConversation)?.updatedAt || getOtherUser(selectedConversation)?.createdAt);
+                                    return isValid(date) 
+                                        ? <span className="text-[11px] font-bold text-muted-foreground/80 italic ml-1">Last seen {formatDistanceToNow(date, { addSuffix: true })}</span>
+                                        : <span className="text-[11px] font-bold text-muted-foreground/80 italic ml-1">Away</span>;
+                                })()}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3.5 text-left">
+                            <div className="group p-4 rounded-3xl bg-muted/30 border border-transparent hover:border-primary/20 hover:bg-white transition-all duration-300 shadow-sm hover:shadow-md cursor-default">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-11 w-11 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                                        <Mail className="h-5 w-5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/50 mb-0.5">Contact Email</p>
+                                        <p className="text-sm font-bold text-foreground truncate">{getOtherUser(selectedConversation)?.email}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="group p-4 rounded-3xl bg-muted/30 border border-transparent hover:border-primary/20 hover:bg-white transition-all duration-300 shadow-sm hover:shadow-md cursor-default">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-11 w-11 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                                        <Phone className="h-5 w-5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/50 mb-0.5">Phone Number</p>
+                                        <p className="text-sm font-bold text-foreground truncate">{getOtherUser(selectedConversation)?.phone_number || "Not available"}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="group p-4 rounded-3xl bg-muted/30 border border-transparent hover:border-primary/20 hover:bg-white transition-all duration-300 shadow-sm hover:shadow-md cursor-default">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-11 w-11 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                                        <Calendar className="h-5 w-5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/50 mb-0.5">Joined Platform</p>
+                                        <p className="text-sm font-bold text-foreground truncate">
+                                            {getOtherUser(selectedConversation)?.createdAt ? format(new Date(getOtherUser(selectedConversation).createdAt), "PPP") : "User since 2024"}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Button 
+                            className="w-full rounded-[20px] h-14 font-black text-base shadow-xl active:scale-[0.98] transition-all duration-200 bg-primary hover:bg-primary/90"
+                            onClick={() => setIsProfileModalOpen(false)}
+                        >
+                            Close Profile
+                        </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground animate-in fade-in duration-700">

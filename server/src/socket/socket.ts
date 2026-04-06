@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io';  
 import { ENUM_SOCKET_EVENT } from '../enums/user';
+import Auth from '../app/modules/auth/auth.model';
 
 // Set to keep track of online users
 const onlineUsers = new Set<string>();
@@ -26,10 +27,20 @@ const socket = (io: Server) => {
     });
 
     // Handle user disconnection
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       console.log("A user disconnected", currentUserId);
       onlineUsers.delete(currentUserId);
       io.emit("onlineUser", Array.from(onlineUsers));
+
+      if (currentUserId && currentUserId !== 'undefined') {
+        try {
+          await Auth.updateOne({ _id: currentUserId }, { 
+            $set: { lastOnline: new Date() } 
+          });
+        } catch (err) {
+          console.error("Error updating last online", err);
+        }
+      }
     });
   });
 };

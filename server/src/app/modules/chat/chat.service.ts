@@ -7,7 +7,7 @@ import Auth from '../auth/auth.model';
 
 const POPULATE_PARTICIPANTS = {
   path: 'participants',
-  select: 'name email role profile_image'
+  select: 'name email role profile_image lastOnline updatedAt'
 };
 
 const POPULATE_LAST_MESSAGE = {
@@ -32,22 +32,48 @@ const createConversation = async (participants: Types.ObjectId[]) => {
 };
 
 const getConversations = async (userId: string) => {
-  const result = await Conversation.find({
+  const conversations = await Conversation.find({
     participants: new Types.ObjectId(userId)
   })
     .populate(POPULATE_PARTICIPANTS)
     .populate(POPULATE_LAST_MESSAGE)
     .sort({ updatedAt: -1 });
 
-  return result;
+  // Calculate unread counts for each conversation
+  const conversationsWithUnread = await Promise.all(
+    conversations.map(async (conv) => {
+      const unreadCount = await Message.countDocuments({
+        conversationId: conv._id,
+        recipient: new Types.ObjectId(userId),
+        readBy: { $ne: new Types.ObjectId(userId) },
+        isDeleted: false
+      });
+      return { ...conv.toObject(), unreadCount };
+    })
+  );
+
+  return conversationsWithUnread;
+};
+
+const markAsRead = async (conversationId: string, userId: string) => {
+  await Message.updateMany(
+    {
+      conversationId: new Types.ObjectId(conversationId),
+      recipient: new Types.ObjectId(userId),
+      readBy: { $ne: new Types.ObjectId(userId) }
+    },
+    {
+      $addToSet: { readBy: new Types.ObjectId(userId) }
+    }
+  );
 };
 
 const getMessages = async (conversationId: string) => {
   const result = await Message.find({
     conversationId: new Types.ObjectId(conversationId)
   })
-    .populate('sender', 'name email role profile_image')
-    .populate('recipient', 'name email role profile_image')
+    .populate('sender', 'name email role profile_image lastOnline updatedAt')
+    .populate('recipient', 'name email role profile_image lastOnline updatedAt')
     .sort({ createdAt: 1 });
 
   return result;
@@ -66,8 +92,8 @@ const sendMessage = async (payload: Partial<IMessage> & { conversationId: string
   });
 
   const populatedMessage = await Message.findById(message._id)
-    .populate('sender', 'name email role profile_image')
-    .populate('recipient', 'name email role profile_image');
+    .populate('sender', 'name email role profile_image lastOnline updatedAt')
+    .populate('recipient', 'name email role profile_image lastOnline updatedAt');
 
   // Update last message in conversation
   await Conversation.findByIdAndUpdate(conversationId, {
@@ -108,7 +134,7 @@ const searchUsers = async (searchTerm: string, currentUserId: string) => {
   };
 
   const result = await Auth.find(query)
-    .select('_id name email role profile_image')
+    .select('_id name email role profile_image lastOnline updatedAt')
     .limit(10);
     
   return result;
@@ -120,5 +146,6 @@ export const ChatService = {
   getMessages,
   sendMessage,
   deleteMessage,
-  searchUsers
+  searchUsers,
+  markAsRead
 };

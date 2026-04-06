@@ -22,6 +22,7 @@ export type IAuth = Document & {
   profile_image: string | null;
   termsAccepted: boolean;
   managedBy?: Types.ObjectId | string;
+  lastOnline?: Date;
 };
 
 export interface IAuthModel extends Model<IAuth> {

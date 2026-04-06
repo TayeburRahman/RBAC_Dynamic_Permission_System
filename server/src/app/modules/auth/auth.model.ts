@@ -72,6 +72,10 @@ const AuthSchema: Schema<IAuth> = new Schema(
       ref: 'Auth',
       default: null,
     },
+    lastOnline: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
