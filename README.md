@@ -1,30 +1,26 @@
-# 🔐 NextGen RBAC: Dynamic Permission Ecosystem
+# NextGen RBAC: Dynamic Permission Ecosystem
 
 ### *Empowering Enterprise Security with Atom-Based Precision*
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](http://204.197.173.139:3001)
-[![Build Time](https://img.shields.io/badge/Build%20Time-16--18%20Hours-blue?style=for-the-badge)](https://github.com/TayeburRahman)
-[![License](https://img.shields.io/badge/License-ISC-red?style=for-the-badge)](https://opensource.org/licenses/ISC)
-
 ---
 
-## 🌟 The Elevator Pitch
+## The Elevator Pitch
 A high-performance, full-stack **Access Control System** that redefines how organizations manage security. By moving from rigid roles to **Atomic Permissions**, this platform allows for zero-code, real-time security updates. Engineered for maximum efficiency, the entire system—from database architecture to a polished Next.js 16 frontend—was built and deployed in a record **16-18 hours**.
 
 ---
 
-## 🎯 Why This Matters (Recruiter & HR View)
+## Why This Matters (Recruiter & HR View)
 
 ### **Core Competencies Demonstrated:**
--   **⚡ Rapid Full-Stack Development:** Built a production-ready system (Frontend + Backend + DB + Real-time) in under a day.
--   **🔐 Advanced Security Design:** Implemented JWT rotation, HTTP-only cookies, and granular atom-based permissions.
--   **🏗️ Scalable Architecture:** Designed a modular backend that separates business logic from security guards.
--   **💬 UX & Communication:** Integrated a real-time messaging system with permission-based access controls.
--   **💼 Business Logic Expertise:** Solved the "Grant Ceiling" problem, ensuring hierarchical security integrity.
+-   **Rapid Full-Stack Development:** Built a production-ready system (Frontend + Backend + DB + Real-time) in under a day.
+-   **Advanced Security Design:** Implemented JWT rotation, HTTP-only cookies, and granular atom-based permissions.
+-   **Scalable Architecture:** Designed a modular backend that separates business logic from security guards.
+-   **UX & Communication:** Integrated a real-time messaging system with permission-based access controls.
+-   **Business Logic Expertise:** Solved the "Grant Ceiling" problem, ensuring hierarchical security integrity.
 
 ---
 
-## 📈 The Solution & Business Impact
+## The Solution & Business Impact
 
 ### The Problem
 Traditional RBAC systems are rigid. If a "Manager" needs one extra feature, developers usually have to change code.
@@ -36,17 +32,17 @@ Traditional RBAC systems are rigid. If a "Manager" needs one extra feature, deve
 
 ---
 
-## 🚀 Key Modules & Capabilities
+## Key Modules & Capabilities
 
--   **🛡️ Dynamic Security Engine:** Instantly synchronizes permissions across the UI and API.
--   **💬 Collaboration Hub:** Secure, real-time messaging for cross-functional teams.
--   **📊 Smart Dashboards:** Role-specific data visualization using interactive charts.
--   **✍️ 100% Audit Transparency:** Permanent, append-only logs for all sensitive actions.
--   **👤 Unified Experience:** Custom workflows for Admins, Managers, Agents, and Customers.
+-   **Dynamic Security Engine:** Instantly synchronizes permissions across the UI and API.
+-   **Collaboration Hub:** Secure, real-time messaging for cross-functional teams.
+-   **Smart Dashboards:** Role-specific data visualization using interactive charts.
+-   **100% Audit Transparency:** Permanent, append-only logs for all sensitive actions.
+-   **Unified Experience:** Custom workflows for Admins, Managers, Agents, and Customers.
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | **Layer** | **Technologies** |
 | :--- | :--- |
@@ -58,7 +54,7 @@ Traditional RBAC systems are rigid. If a "Manager" needs one extra feature, deve
 
 ---
 
-## 📁 Project Architecture
+## Project Architecture
 
 ```text
 ├── client/          # Modern Next.js 16 frontend with atomic component design
@@ -68,7 +64,7 @@ Traditional RBAC systems are rigid. If a "Manager" needs one extra feature, deve
 
 ---
 
-## 🔑 Demo Access
+## Demo Access
 
 | Role | Email | Password |
 | :--- | :--- | :--- |
@@ -79,11 +75,11 @@ Traditional RBAC systems are rigid. If a "Manager" needs one extra feature, deve
 
 ---
 
-## 📜 License
+## License
 This project is licensed under the **ISC License**.
 
 ---
 <p align="center">
   <b>Built for Excellence in Record Time</b><br>
-  Built with ❤️ by <a href="https://github.com/TayeburRahman">Tayebur Rahman</a>
+  Built by <a href="https://github.com/TayeburRahman">Tayebur Rahman</a>
 </p>
