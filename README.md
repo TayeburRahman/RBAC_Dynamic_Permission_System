@@ -9,6 +9,17 @@ A high-performance, full-stack **Access Control System** that redefines how orga
 
 ---
 
+## Demo Access
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Super Admin** | `superadmin@tayebur.com` | `superadmin123` |
+| **Manager** | `tayeb.bd.personal.10@gmail.com` | `1qaz2wsx` |
+| **Agent** | `tayeb.bd.personal@gmail.com` | `1qaz2wsx` |
+| **Customer** | `tayeb.customer@gmail.com` | `1qaz2wsx` |
+
+---
+
 ## Why This Matters (Recruiter & HR View)
 
 ### **Core Competencies Demonstrated:**
@@ -63,18 +74,7 @@ Traditional RBAC systems are rigid. If a "Manager" needs one extra feature, deve
 ```
 
 ---
-
-## Demo Access
-
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **Super Admin** | `superadmin@tayebur.com` | `superadmin123` |
-| **Manager** | `tayeb.bd.personal.10@gmail.com` | `1qaz2wsx` |
-| **Agent** | `tayeb.bd.personal@gmail.com` | `1qaz2wsx` |
-| **Customer** | `tayeb.customer@gmail.com` | `1qaz2wsx` |
-
----
-
+ 
 ## License
 This project is licensed under the **ISC License**.
 
